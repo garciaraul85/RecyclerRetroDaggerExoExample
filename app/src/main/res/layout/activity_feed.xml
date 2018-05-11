@@ -3,15 +3,6 @@
 xmlns:android="http://schemas.android.com/apk/res/android"
 xmlns:tools="http://schemas.android.com/tools"
 android:layout_width="match_parent"
-android:layout_height="match_parent"
+android:layout_height="match_parent" android:id="@+id/container"
 tools:context="com.example.player.view.FeedActivity">
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/post_list"
-        android:scrollbars="vertical"
-        android:overScrollMode="never"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:paddingTop="8dp"
-        android:paddingBottom="8dp"
-        android:clipToPadding="false"/>
 </RelativeLayout>
