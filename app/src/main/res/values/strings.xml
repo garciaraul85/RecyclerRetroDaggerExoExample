@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Dagger Testing</string>
+    <string name="Search_prompt">Search</string>
 </resources>

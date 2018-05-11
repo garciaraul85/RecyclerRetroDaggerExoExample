@@ -13,18 +13,19 @@ import javax.inject.Inject;
 
 public class FeedActivity extends AppCompatActivity {
 
+    @Inject
     SearchResultsFragment searchResultsFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_feed);
+        ((DemoApplication) getApplication()).demoComponent().inject(this);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        searchResultsFragment = new SearchResultsFragment();
         if (searchResultsFragment != null) {
             FragmentManager fm = getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fm.beginTransaction();

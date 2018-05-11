@@ -5,6 +5,7 @@ import com.example.player.client.FourSquaresClient;
 import com.example.player.deserializer.DateDeserializer;
 import com.example.player.deserializer.ObjectJsonDeserializer;
 import com.example.player.model.BaseObject;
+import com.example.player.view.SearchResultsFragment;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -52,6 +53,12 @@ public class ClientModule {
                 .build();
 
         return retrofit.create(FourSquaresClient.class);
+    }
+
+    @Provides
+    public SearchResultsFragment providesSearchResultsFragment() {
+        SearchResultsFragment searchResultsFragment = new SearchResultsFragment();
+        return searchResultsFragment;
     }
 
 }

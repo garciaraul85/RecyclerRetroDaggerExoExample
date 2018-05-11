@@ -3,6 +3,8 @@ package com.example.player.view;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.UiThread;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -10,6 +12,8 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.example.player.DemoApplication;
@@ -41,6 +45,9 @@ public class SearchResultsFragment extends Fragment {
     private PostAdapter postAdapter;
     private LinearLayoutManager postListLayoutManager;
 
+    private EditText poiSearchEditText;
+    private ImageView poiSearchClear;
+
     /** Hold active loading observable subscriptions, so that they can be unsubscribed from when the activity is destroyed */
     private CompositeSubscription subscriptions;
 
@@ -54,13 +61,21 @@ public class SearchResultsFragment extends Fragment {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_search_results, container, false);
 
-        loadingMenuItem = (MenuItem) rootView.findViewById(R.id.progress);
-        postList        = (RecyclerView) rootView.findViewById(R.id.post_list);
+        setupUI(rootView);
 
         ((DemoApplication) getActivity().getApplication()).appComponent().inject(this);
 
         subscriptions = new CompositeSubscription();
         return rootView;
+    }
+
+    @UiThread
+    private void setupUI(@NonNull View rootView) {
+        loadingMenuItem = (MenuItem) rootView.findViewById(R.id.progress);
+        postList         = (RecyclerView) rootView.findViewById(R.id.post_list);
+
+        poiSearchEditText = (EditText) rootView.findViewById(R.id.poi_search_edit_text);
+        poiSearchClear    = (ImageView) rootView.findViewById(R.id.poi_search_clear);
     }
 
     @Override

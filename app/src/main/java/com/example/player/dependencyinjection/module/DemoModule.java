@@ -1,6 +1,6 @@
 package com.example.player.dependencyinjection.module;
 
-import com.example.player.model.User;
+import com.example.player.view.SearchResultsFragment;
 
 import dagger.Module;
 import dagger.Provides;
@@ -12,9 +12,9 @@ import dagger.Provides;
 public class DemoModule {
 
     @Provides
-    public User providesUser() {
-        User user = new User();
-        return user;
+    public SearchResultsFragment providesSearchResultsFragment() {
+        SearchResultsFragment searchResultsFragment = new SearchResultsFragment();
+        return searchResultsFragment;
     }
 
 }
