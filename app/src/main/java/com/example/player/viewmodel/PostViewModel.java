@@ -1,8 +1,10 @@
 package com.example.player.viewmodel;
 
 import com.example.player.model.Result;
+import com.example.player.model.Venue;
 
 import lombok.Data;
+import lombok.NonNull;
 
 /**
  * Created by linke_000 on 17/08/2017.
@@ -10,69 +12,67 @@ import lombok.Data;
 @Data
 public class PostViewModel {
 
-    private String posterPath;
-    private String title;
-    private String releaseDate;
-    private Double popularity;
+    private String nameOfPlace;
+    private String categoryOfPlace;
+    private String iconUrl;
+    private String iconExtension = ".png";
+    private String homePage;
+    private double latitude;
+    private double longitude;
+    private boolean favorite;
 
-    public String getType() {
-        return type;
+    public PostViewModel(@NonNull Venue venue) {
+        this.nameOfPlace = venue.getName();
+
+        if (venue.getCategories() != null && !venue.getCategories().isEmpty()) {
+            this.categoryOfPlace = venue.getCategories().get(0).getName();
+            if (venue.getCategories().get(0).getIcon() != null &&
+                    venue.getCategories().get(0).getIcon().getPrefix() != null &&
+                    venue.getCategories().get(0).getIcon().getSuffix() != null)
+                this.iconUrl = venue.getCategories().get(0).getIcon().getPrefix();
+                this.iconExtension = venue.getCategories().get(0).getIcon().getSuffix();
+        }
+
+        if (venue.getDelivery() != null && venue.getDelivery().getUrl() != null) {
+            this.homePage = venue.getDelivery().getUrl();
+        }
+
+        if (venue.getLocation() != null) {
+            this.latitude = venue.getLocation().getLat();
+            this.longitude = venue.getLocation().getLng();
+        }
+
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public String getNameOfPlace() {
+        return nameOfPlace;
     }
 
-    private String type;
-
-    public PostViewModel(Result result, String type) {
-        this.title       = result.getTitle();
-        this.releaseDate = result.getReleaseDate();
-        this.posterPath  = result.getPosterPath();
-        this.popularity  = result.getPopularity();
-        this.type        = type;
+    public void setNameOfPlace(String nameOfPlace) {
+        this.nameOfPlace = nameOfPlace;
     }
 
-    public PostViewModel(Result result) {
-        this.title       = result.getTitle();
-        this.releaseDate = result.getReleaseDate();
-        this.posterPath  = result.getPosterPath();
-        this.popularity  = result.getPopularity();
+    public String getCategoryOfPlace() {
+        return categoryOfPlace;
     }
 
-    public PostViewModel(String type) {
-        this.type = type;
+    public void setCategoryOfPlace(String categoryOfPlace) {
+        this.categoryOfPlace = categoryOfPlace;
     }
 
-    public String getPosterPath() {
-        return posterPath;
+    public String getIconUrl() {
+        return iconUrl;
     }
 
-    public void setPosterPath(String posterPath) {
-        this.posterPath = posterPath;
+    public void setIconUrl(String iconUrl) {
+        this.iconUrl = iconUrl;
     }
 
-    public String getTitle() {
-        return title;
+    public String getIconExtension() {
+        return iconExtension;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getReleaseDate() {
-        return releaseDate;
-    }
-
-    public void setReleaseDate(String releaseDate) {
-        this.releaseDate = releaseDate;
-    }
-
-    public Double getPopularity() {
-        return popularity;
-    }
-
-    public void setPopularity(Double popularity) {
-        this.popularity = popularity;
+    public void setIconExtension(String iconExtension) {
+        this.iconExtension = iconExtension;
     }
 }

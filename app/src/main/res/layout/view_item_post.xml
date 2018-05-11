@@ -25,7 +25,7 @@
             android:padding="8dp">
 
             <ImageView
-                android:id="@+id/posterPath"
+                android:id="@+id/iconUrl"
                 android:layout_width="60dp"
                 android:layout_height="60dp"
                 android:layout_alignParentTop="true"
@@ -36,24 +36,18 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:layout_toLeftOf="@id/posterPath"
+                android:layout_toLeftOf="@id/iconUrl"
                 android:layout_marginRight="8dp"
                 android:layout_marginLeft="4dp">
 
                 <TextView
-                    android:id="@+id/title"
+                    android:id="@+id/nameOfPlace"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textColor="@android:color/black"/>
 
                 <TextView
-                    android:id="@+id/releaseDate"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textSize="12dp"/>
-
-                <TextView
-                    android:id="@+id/popularity"
+                    android:id="@+id/categoryOfPlace"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textSize="12dp"/>

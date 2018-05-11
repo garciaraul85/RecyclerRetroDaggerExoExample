@@ -1,7 +1,7 @@
 package com.example.player.dependencyinjection.module;
 
 import com.example.player.BuildConfig;
-import com.example.player.client.MoviesClient;
+import com.example.player.client.FourSquaresClient;
 import com.example.player.deserializer.DateDeserializer;
 import com.example.player.deserializer.ObjectJsonDeserializer;
 import com.example.player.model.BaseObject;
@@ -27,7 +27,7 @@ import rx.schedulers.Schedulers;
 public class ClientModule {
 
     @Provides
-    public MoviesClient provideMoviesClient() {
+    public FourSquaresClient provideMoviesClient() {
         Gson gson = new GsonBuilder()
                 .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
                 .registerTypeAdapter(BaseObject.class, new ObjectJsonDeserializer())
@@ -45,13 +45,13 @@ public class ClientModule {
         OkHttpClient client = okHttpClientBuilder.build();
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://api.themoviedb.org")
+                .baseUrl("https://api.foursquare.com")
                 .client(client)
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .addCallAdapterFactory(rxAdapter)
                 .build();
 
-        return retrofit.create(MoviesClient.class);
+        return retrofit.create(FourSquaresClient.class);
     }
 
 }

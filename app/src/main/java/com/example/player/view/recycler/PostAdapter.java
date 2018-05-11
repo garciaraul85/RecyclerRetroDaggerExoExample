@@ -40,7 +40,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostViewHolder> {
         return items.size();
     }
 
-    public PostViewModel getItem(int position) {
+    private PostViewModel getItem(int position) {
         return items.get(position);
     }
 
