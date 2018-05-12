@@ -12,5 +12,5 @@ import dagger.Component;
 @PerActivity
 @Component(modules = { DemoModule.class })
 public interface DemoComponent {
-    void inject(FeedActivity target);
+    void inject(FeedActivity activity);
 }

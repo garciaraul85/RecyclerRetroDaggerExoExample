@@ -5,6 +5,7 @@ import com.example.player.client.FourSquaresClient;
 import com.example.player.deserializer.DateDeserializer;
 import com.example.player.deserializer.ObjectJsonDeserializer;
 import com.example.player.model.BaseObject;
+import com.example.player.view.MapFragment;
 import com.example.player.view.SearchResultsFragment;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
@@ -59,6 +60,12 @@ public class ClientModule {
     public SearchResultsFragment providesSearchResultsFragment() {
         SearchResultsFragment searchResultsFragment = new SearchResultsFragment();
         return searchResultsFragment;
+    }
+
+    @Provides
+    public MapFragment providesMapFragment() {
+        MapFragment mapFragment = new MapFragment();
+        return mapFragment;
     }
 
 }

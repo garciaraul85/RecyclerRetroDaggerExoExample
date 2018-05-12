@@ -1,11 +1,17 @@
 package com.example.player.view;
 
+import android.arch.lifecycle.Lifecycle;
+import android.arch.lifecycle.LifecycleOwner;
+import android.arch.lifecycle.LifecycleRegistry;
+import android.arch.lifecycle.Observer;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -20,6 +26,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -41,10 +48,12 @@ import rx.subscriptions.CompositeSubscription;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class SearchResultsFragment extends Fragment {
+public class SearchResultsFragment extends Fragment implements LifecycleOwner {
 
     public static final String TAG = "SearchResultsFragment";
     RecyclerView postList;
+
+    private LifecycleRegistry mLifecycleRegistry;
 
     MenuItem loadingMenuItem;
 
@@ -55,6 +64,7 @@ public class SearchResultsFragment extends Fragment {
     private LinearLayoutManager postListLayoutManager;
 
     private EditText poiSearchEditText;
+    private FloatingActionButton showMapButton;
     private ImageView poiSearchClear;
     private Handler searchHandler = new Handler();
 
@@ -82,6 +92,19 @@ public class SearchResultsFragment extends Fragment {
     }
 
     @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mLifecycleRegistry = new LifecycleRegistry(this);
+        mLifecycleRegistry.markState(Lifecycle.State.CREATED);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        mLifecycleRegistry.markState(Lifecycle.State.STARTED);
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
@@ -105,6 +128,8 @@ public class SearchResultsFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+
+        showFab();
         manageSearchList();
         initBindings();
 
@@ -114,11 +139,13 @@ public class SearchResultsFragment extends Fragment {
 
     @UiThread
     private void setupUI(@NonNull View rootView) {
-        loadingMenuItem = (MenuItem) rootView.findViewById(R.id.progress);
-        postList         = (RecyclerView) rootView.findViewById(R.id.post_list);
+        loadingMenuItem  = rootView.findViewById(R.id.progress);
 
-        poiSearchEditText = (EditText) rootView.findViewById(R.id.poi_search_edit_text);
-        poiSearchClear     = (ImageView) rootView.findViewById(R.id.poi_search_clear);
+        postList          = rootView.findViewById(R.id.post_list);
+        poiSearchEditText = rootView.findViewById(R.id.poi_search_edit_text);
+
+        poiSearchClear = rootView.findViewById(R.id.poi_search_clear);
+        showMapButton  = rootView.findViewById(R.id.button_show_map);
 
         manageSearchListeners();
     }
@@ -265,6 +292,27 @@ public class SearchResultsFragment extends Fragment {
         if (loadingMenuItem != null) {
             loadingMenuItem.setVisible(isLoading);
         }
+    }
+
+    private void showFab() {
+        final Observer<Boolean> elapsedTimeObserver = new Observer<Boolean>() {
+            @Override
+            public void onChanged(@Nullable final Boolean showFab) {
+                if (showFab && showFab != null && showMapButton != null) {
+                    showMapButton.setVisibility(View.VISIBLE);
+                } else {
+                    showMapButton.setVisibility(View.GONE);
+                }
+            }
+        };
+
+        viewModel.getShowResultsMapFab().observe(this, elapsedTimeObserver);
+    }
+
+    @NonNull
+    @Override
+    public Lifecycle getLifecycle() {
+        return mLifecycleRegistry;
     }
 
 }
