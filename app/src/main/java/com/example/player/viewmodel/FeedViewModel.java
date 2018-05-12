@@ -1,5 +1,7 @@
 package com.example.player.viewmodel;
 
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.MutableLiveData;
 import android.util.Log;
 
 import com.example.player.client.FourSquaresClient;
@@ -30,6 +32,8 @@ public class FeedViewModel {
     private BehaviorSubject<Boolean> isLoadingSubject       = BehaviorSubject.create(false);
 
     private List<PostViewModel> currentList;
+
+    private MutableLiveData<Boolean> showResultsMapFab = new MutableLiveData<>();
 
     @Inject
     public FeedViewModel(FourSquaresClient fourSquareClient) {
@@ -96,5 +100,11 @@ public class FeedViewModel {
         fullList.addAll(list);
 
         postSubject.onNext(list);
+        showResultsMapFab.postValue(!list.isEmpty());
+
+    }
+
+    public MutableLiveData<Boolean> getShowResultsMapFab() {
+        return showResultsMapFab;
     }
 }

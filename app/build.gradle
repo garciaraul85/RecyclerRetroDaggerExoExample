@@ -79,6 +79,11 @@ dependencies {
     // HttpClient
     compile 'com.squareup.okhttp3:logging-interceptor:3.3.1'
 
+    // ViewModel and LiveData
+    implementation "android.arch.lifecycle:viewmodel:1.1.1"
+    implementation "android.arch.lifecycle:livedata:1.1.1"
+    implementation "android.arch.lifecycle:runtime:1.1.1"
+
     // RX
     compile 'io.reactivex:rxjava:1.1.8'
     compile 'io.reactivex:rxandroid:1.2.1'
