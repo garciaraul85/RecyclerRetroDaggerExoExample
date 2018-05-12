@@ -6,6 +6,7 @@ import com.example.player.client.FourSquaresClient;
 import com.example.player.model.Response;
 import com.example.player.model.Result;
 import com.example.player.model.Venue;
+import com.example.player.view.recycler.PostAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +28,7 @@ public class FeedViewModel {
     private String clientSecret;
     private String version;
     private final static String NEAR = "Chicago";
-    private String query = "Tacos";
+    //private String query = "Tacos";
     private BehaviorSubject<List<PostViewModel>> postSubject = BehaviorSubject.create(new ArrayList<>());
     private BehaviorSubject<Boolean> isLoadingSubject       = BehaviorSubject.create(false);
 
@@ -44,7 +45,9 @@ public class FeedViewModel {
         currentList = new ArrayList<>();
     }
 
-    public Observable<List<PostViewModel>> loadMorePosts() {
+    public Observable<List<PostViewModel>> loadMorePosts(String query) {
+
+        Log.d(TAG, "loadMorePosts: " + query);
         // Don't try and load if we're already loading
         if (isLoadingSubject.getValue()) {
             return Observable.empty();
@@ -57,13 +60,9 @@ public class FeedViewModel {
                 // Safe to cast to RedditListing, as this is always returned from top posts
                 .cast(Result.class)
                 // Store the page, so we can use it to get the next page of posts is a subsequent load
-                .doOnNext(new Action1<Result>() {
-                    @Override
-                    public void call(Result result) {
-                        Log.d(TAG, "call: ");
-                        if (result != null && result.getResponse() != null && result.getResponse().getVenues() != null) {
+                .doOnNext(result -> {
+                    if (result != null && result.getResponse() != null && result.getResponse().getVenues() != null) {
 
-                        }
                     }
                 })
                 // Flatten into observable of Results
@@ -96,6 +95,7 @@ public class FeedViewModel {
     }
 
     private void call(List<PostViewModel> list) {
+        Log.d(TAG, "call: " + list.toString());
         List<PostViewModel> fullList = new ArrayList<>(postSubject.getValue());
         fullList.addAll(list);
 

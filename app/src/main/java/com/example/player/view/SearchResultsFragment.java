@@ -1,23 +1,32 @@
 package com.example.player.view;
 
-
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.UiThread;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
+import android.text.TextUtils;
+import android.text.TextWatcher;
+import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.Toast;
+import android.widget.TextView;
 
 import com.example.player.DemoApplication;
 import com.example.player.R;
+import com.example.player.model.MapsModuleListener;
 import com.example.player.view.recycler.PostAdapter;
 import com.example.player.view.recycler.RecyclerTouchListener;
 import com.example.player.view.recycler.RecyclerViewClickListener;
@@ -47,12 +56,29 @@ public class SearchResultsFragment extends Fragment {
 
     private EditText poiSearchEditText;
     private ImageView poiSearchClear;
+    private Handler searchHandler = new Handler();
 
     /** Hold active loading observable subscriptions, so that they can be unsubscribed from when the activity is destroyed */
     private CompositeSubscription subscriptions;
 
+    private MapsModuleListener fragmentListener;
+
+    private String currentSearch = "";
+
     public SearchResultsFragment() {
         // Required empty public constructor
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (fragmentListener == null) {
+            try {
+                fragmentListener = (MapsModuleListener) context;
+            } catch (ClassCastException e) {
+                throw new ClassCastException("Activity must implement MapsModuleListener.");
+            }
+        }
     }
 
     @Override
@@ -75,7 +101,73 @@ public class SearchResultsFragment extends Fragment {
         postList         = (RecyclerView) rootView.findViewById(R.id.post_list);
 
         poiSearchEditText = (EditText) rootView.findViewById(R.id.poi_search_edit_text);
-        poiSearchClear    = (ImageView) rootView.findViewById(R.id.poi_search_clear);
+        poiSearchClear     = (ImageView) rootView.findViewById(R.id.poi_search_clear);
+
+        manageSearch();
+    }
+
+    Runnable searchRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (fragmentListener != null) {
+                fragmentListener.onPoiSearchTermEntered(poiSearchEditText.getText().toString());
+            }
+        }
+    };
+
+    public void manageSearch() {
+        poiSearchEditText.addTextChangedListener(
+                new TextWatcher() {
+                    @Override
+                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                    }
+
+                    @Override
+                    public void onTextChanged(CharSequence s, int start, int before, int count) {
+                        if (!TextUtils.isEmpty(s)) {
+                            currentSearch = s.toString();
+                            Log.d(TAG, "onTextChanged: " + currentSearch);
+                            search(currentSearch);
+                        }
+                    }
+
+                    @Override
+                    public void afterTextChanged(Editable s) {
+                        searchHandler.removeCallbacks(searchRunnable);
+                        if (poiSearchEditText.getText().toString().length() > 0) {
+                            Log.d(TAG, "afterTextChanged: ");
+                            searchHandler.postDelayed(searchRunnable, 1000);
+                        }
+                        if (postAdapter != null) {
+                            postAdapter.notifyDataSetChanged();
+                        }
+                    }
+                }
+        );
+
+        poiSearchEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    //Clear focus here from edittext
+                    poiSearchEditText.clearFocus();
+                    fragmentListener.onPoiSearchTermEntered(poiSearchEditText.getText().toString());
+                    hideSoftKeyboard();
+                }
+                return false;
+            }
+        });
+
+        poiSearchEditText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (hasFocus) {
+                    InputMethodManager imm = (InputMethodManager) getActivity().
+                            getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.toggleSoftInput(0, InputMethodManager.HIDE_NOT_ALWAYS);
+                }
+            }
+        });
     }
 
     @Override
@@ -92,7 +184,7 @@ public class SearchResultsFragment extends Fragment {
         initBindings();
 
         // Initial page load
-        loadNextPage();
+        search(currentSearch);
     }
 
     private void initViews() {
@@ -118,6 +210,11 @@ public class SearchResultsFragment extends Fragment {
         postList.setAdapter(postAdapter);
     }
 
+    private void hideSoftKeyboard() {
+        InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(getView().getWindowToken(), 0);
+    }
+
     private void initBindings() {
         // Observable that emits when the RecyclerView is scrolled to the bottom
         Observable<Void> infiniteScrollObservable = Observable.create(subscriber -> {
@@ -137,13 +234,23 @@ public class SearchResultsFragment extends Fragment {
                 viewModel.isLoadingObservable().observeOn(AndroidSchedulers.mainThread()).subscribe(this::setIsLoading),
 
                 // Trigger next page load when RecyclerView is scrolled to the bottom
-                infiniteScrollObservable.subscribe(x -> loadNextPage())
+                infiniteScrollObservable.subscribe(x -> loadNextPage(currentSearch))
         );
+
     }
 
-    private void loadNextPage() {
-        subscriptions.add(viewModel.loadMorePosts().subscribe()
-        );
+    private void search(String query) {
+        Log.d(TAG, "loadNextPage: " + query);
+        subscriptions.add(viewModel.loadMorePosts(query).subscribe());
+
+        if (postAdapter != null) {
+            postAdapter.notifyDataSetChanged();
+        }
+    }
+
+    private void loadNextPage(String query) {
+        Log.d(TAG, "loadNextPage: " + query);
+        subscriptions.add(viewModel.loadMorePosts(query).subscribe());
     }
 
     private void setIsLoading(boolean isLoading) {

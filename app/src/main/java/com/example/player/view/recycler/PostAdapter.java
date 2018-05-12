@@ -11,7 +11,6 @@ import com.example.player.viewmodel.PostViewModel;
 import java.util.ArrayList;
 import java.util.List;
 
-
 /**
  * Created by linke_000 on 17/08/2017.
  */

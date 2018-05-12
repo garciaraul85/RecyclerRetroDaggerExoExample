@@ -7,11 +7,12 @@ import android.support.v7.app.AppCompatActivity;
 
 import com.example.player.DemoApplication;
 import com.example.player.R;
+import com.example.player.model.MapsModuleListener;
 
 import javax.inject.Inject;
 
 
-public class FeedActivity extends AppCompatActivity {
+public class FeedActivity extends AppCompatActivity implements MapsModuleListener {
 
     @Inject
     SearchResultsFragment searchResultsFragment;
@@ -35,4 +36,18 @@ public class FeedActivity extends AppCompatActivity {
     }
 
 
+    @Override
+    public void onMapsSearchOpen() {
+
+    }
+
+    @Override
+    public void onMapsSearchClosed() {
+
+    }
+
+    @Override
+    public void onPoiSearchTermEntered(String searchTerm) {
+
+    }
 }
