@@ -11,8 +11,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.player.DemoApplication;
 import com.example.player.R;
 import com.example.player.model.MapsModuleListener;
+import com.example.player.viewmodel.FeedViewModel;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -21,6 +23,8 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
+
+import javax.inject.Inject;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -31,6 +35,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     // Google Map
     private GoogleMap mGoogleMap;
     private static final int DEFAULT_ZOOM = 12;
+    // Coordinates Seattle (47.6062° N, 122.3321°W)  takes me to somewhere in Asia so I changed it to real Seattle Coordinates. ;)
     private final LatLng mDefaultLocation = new LatLng(47.608013, -122.335167);
 
     private ArrayList<LatLng> mMarkerPoints;
@@ -40,6 +45,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private MapsModuleListener fragmentListener;
 
     private FloatingActionButton showListButton;
+
+    @Inject
+    FeedViewModel viewModel;
 
     public MapFragment() {
         // Required empty public constructor
@@ -62,6 +70,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_map, container, false);
+
+        ((DemoApplication) getActivity().getApplication()).appComponent().inject(this);
 
         showListButton = view.findViewById(R.id.button_show_list);
 

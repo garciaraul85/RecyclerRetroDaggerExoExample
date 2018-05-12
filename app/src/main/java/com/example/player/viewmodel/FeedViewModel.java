@@ -2,6 +2,7 @@ package com.example.player.viewmodel;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
+import android.arch.lifecycle.ViewModel;
 import android.util.Log;
 
 import com.example.player.client.FourSquaresClient;
@@ -19,14 +20,14 @@ import rx.subjects.BehaviorSubject;
 /**
  * Created by linke_000 on 17/08/2017.
  */
-public class FeedViewModel {
+public class FeedViewModel extends ViewModel {
     private static final String TAG = "ViewModelTAG_";
     private FourSquaresClient fourSquareClient;
 
     private String clientId;
     private String clientSecret;
     private String version;
-    private final static String NEAR = "Chicago";
+    private final static String NEAR = "Seattle";
     //private String query = "Tacos";
     private BehaviorSubject<List<PostViewModel>> postSubject = BehaviorSubject.create(new ArrayList<>());
     private BehaviorSubject<Boolean> isLoadingSubject       = BehaviorSubject.create(false);
@@ -98,6 +99,8 @@ public class FeedViewModel {
 
         List<PostViewModel> fullList = new ArrayList<>(postSubject.getValue());
         fullList.addAll(list);
+
+        currentList.addAll(list);
 
         postSubject.onNext(list);
         showResultsMapFab.postValue(!list.isEmpty());
