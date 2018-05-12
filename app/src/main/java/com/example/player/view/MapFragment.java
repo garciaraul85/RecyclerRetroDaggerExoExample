@@ -1,7 +1,9 @@
 package com.example.player.view;
 
+import android.content.Context;
 import android.location.Location;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -10,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.player.R;
+import com.example.player.model.MapsModuleListener;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -24,6 +27,7 @@ import java.util.ArrayList;
  */
 public class MapFragment extends Fragment implements OnMapReadyCallback {
 
+    public static final String TAG = "MapFragment";
     // Google Map
     private GoogleMap mGoogleMap;
     private static final int DEFAULT_ZOOM = 12;
@@ -33,16 +37,41 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     private SupportMapFragment mapFragment;
 
+    private MapsModuleListener fragmentListener;
+
+    private FloatingActionButton showListButton;
+
     public MapFragment() {
         // Required empty public constructor
     }
 
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (fragmentListener == null) {
+            try {
+                fragmentListener = (MapsModuleListener) context;
+            } catch (ClassCastException e) {
+                throw new ClassCastException("Activity must implement MapsModuleListener.");
+            }
+        }
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_map, container, false);
+
+        showListButton = view.findViewById(R.id.button_show_list);
+
+        // Show the list in a map format
+        showListButton.setOnClickListener(v -> {
+            if (fragmentListener != null) {
+                fragmentListener.onMapsSearchClosed();
+            }
+        });
+
         initializeFragmentMap();
         return view;
     }

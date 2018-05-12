@@ -22,6 +22,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
@@ -231,7 +232,9 @@ public class SearchResultsFragment extends Fragment implements LifecycleOwner {
                 if (hasFocus) {
                     InputMethodManager imm = (InputMethodManager) getActivity().
                             getSystemService(Context.INPUT_METHOD_SERVICE);
-                    imm.toggleSoftInput(0, InputMethodManager.HIDE_NOT_ALWAYS);
+                    if (imm != null) {
+                        imm.toggleSoftInput(0, InputMethodManager.HIDE_NOT_ALWAYS);
+                    }
                 }
             }
         });
@@ -295,10 +298,9 @@ public class SearchResultsFragment extends Fragment implements LifecycleOwner {
     }
 
     private void showFab() {
-        final Observer<Boolean> elapsedTimeObserver = new Observer<Boolean>() {
-            @Override
-            public void onChanged(@Nullable final Boolean showFab) {
-                if (showFab && showFab != null && showMapButton != null) {
+        final Observer<Boolean> elapsedTimeObserver = showFab -> {
+            if (showMapButton != null) {
+                if (showFab != null && showFab) {
                     showMapButton.setVisibility(View.VISIBLE);
                 } else {
                     showMapButton.setVisibility(View.GONE);
@@ -307,6 +309,14 @@ public class SearchResultsFragment extends Fragment implements LifecycleOwner {
         };
 
         viewModel.getShowResultsMapFab().observe(this, elapsedTimeObserver);
+
+        // Show the list in a map format
+        showMapButton.setOnClickListener(v -> {
+            if (fragmentListener != null) {
+                hideSoftKeyboard();
+                fragmentListener.onMapsSearchOpen();
+            }
+        });
     }
 
     @NonNull
