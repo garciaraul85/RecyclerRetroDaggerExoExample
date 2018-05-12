@@ -1,5 +1,6 @@
 package com.example.player.dependencyinjection.module;
 
+import com.example.player.view.MapFragment;
 import com.example.player.view.SearchResultsFragment;
 
 import dagger.Module;
@@ -15,6 +16,12 @@ public class DemoModule {
     public SearchResultsFragment providesSearchResultsFragment() {
         SearchResultsFragment searchResultsFragment = new SearchResultsFragment();
         return searchResultsFragment;
+    }
+
+    @Provides
+    public MapFragment providesMapFragment() {
+        MapFragment mapFragment = new MapFragment();
+        return mapFragment;
     }
 
 }

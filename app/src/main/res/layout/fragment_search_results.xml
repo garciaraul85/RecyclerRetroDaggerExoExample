@@ -7,8 +7,8 @@
 
     <LinearLayout
         android:id="@+id/ly_list_form"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:orientation="vertical">
 
         <LinearLayout
@@ -45,7 +45,7 @@
 
     <LinearLayout
         android:id="@+id/ly_bar_bottom"
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:gravity="right"
@@ -64,17 +64,6 @@
             android:visibility="gone"
             app:pressedTranslationZ="12dp" />
 
-        <android.support.design.widget.FloatingActionButton
-            android:id="@+id/button_show_list"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom|end"
-            android:layout_margin="28dp"
-            android:src="@drawable/ic_displayas_list_24"
-            app:borderWidth="0dp"
-            app:elevation="6dp"
-            android:visibility="gone"
-            app:pressedTranslationZ="12dp" />
     </LinearLayout>
 
 </RelativeLayout>

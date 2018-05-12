@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">Dagger Testing</string>
     <string name="Search_prompt">Search</string>
+    <string name="image_to_clear_search">Image to clear search</string>
 </resources>

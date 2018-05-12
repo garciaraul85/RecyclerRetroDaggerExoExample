@@ -16,6 +16,8 @@ public class FeedActivity extends AppCompatActivity implements MapsModuleListene
 
     @Inject
     SearchResultsFragment searchResultsFragment;
+    @Inject
+    MapFragment mapFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,23 +29,35 @@ public class FeedActivity extends AppCompatActivity implements MapsModuleListene
     @Override
     protected void onResume() {
         super.onResume();
-        if (searchResultsFragment != null) {
+        showList();
+    }
+
+    private void showMap() {
+        if (mapFragment != null) {
             FragmentManager fm = getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fm.beginTransaction();
-            fragmentTransaction.add(R.id.container, searchResultsFragment, SearchResultsFragment.TAG);
+            fragmentTransaction.replace(R.id.container, mapFragment, MapFragment.TAG);
             fragmentTransaction.commit();
         }
     }
 
+    private void showList() {
+        if (searchResultsFragment != null) {
+            FragmentManager fm = getSupportFragmentManager();
+            FragmentTransaction fragmentTransaction = fm.beginTransaction();
+            fragmentTransaction.replace(R.id.container, searchResultsFragment, SearchResultsFragment.TAG);
+            fragmentTransaction.commit();
+        }
+    }
 
     @Override
     public void onMapsSearchOpen() {
-
+        showMap();
     }
 
     @Override
     public void onMapsSearchClosed() {
-
+        showList();
     }
 
     @Override
