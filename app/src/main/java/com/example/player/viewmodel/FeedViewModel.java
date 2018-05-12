@@ -3,10 +3,8 @@ package com.example.player.viewmodel;
 import android.util.Log;
 
 import com.example.player.client.FourSquaresClient;
-import com.example.player.model.Response;
 import com.example.player.model.Result;
 import com.example.player.model.Venue;
-import com.example.player.view.recycler.PostAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +12,6 @@ import java.util.List;
 import javax.inject.Inject;
 
 import rx.Observable;
-import rx.functions.Action1;
 import rx.subjects.BehaviorSubject;
 
 /**
@@ -33,8 +30,6 @@ public class FeedViewModel {
     private BehaviorSubject<Boolean> isLoadingSubject       = BehaviorSubject.create(false);
 
     private List<PostViewModel> currentList;
-
-//    private int page;
 
     @Inject
     public FeedViewModel(FourSquaresClient fourSquareClient) {
@@ -96,11 +91,10 @@ public class FeedViewModel {
 
     private void call(List<PostViewModel> list) {
         Log.d(TAG, "call: " + list.toString());
+
         List<PostViewModel> fullList = new ArrayList<>(postSubject.getValue());
         fullList.addAll(list);
 
-        currentList.addAll(list);
-
-        postSubject.onNext(fullList);
+        postSubject.onNext(list);
     }
 }

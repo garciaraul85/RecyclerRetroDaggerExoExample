@@ -95,6 +95,23 @@ public class SearchResultsFragment extends Fragment {
         return rootView;
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        subscriptions.unsubscribe();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        manageSearchList();
+        initBindings();
+
+        // Initial page load
+        search(currentSearch);
+    }
+
     @UiThread
     private void setupUI(@NonNull View rootView) {
         loadingMenuItem = (MenuItem) rootView.findViewById(R.id.progress);
@@ -103,7 +120,7 @@ public class SearchResultsFragment extends Fragment {
         poiSearchEditText = (EditText) rootView.findViewById(R.id.poi_search_edit_text);
         poiSearchClear     = (ImageView) rootView.findViewById(R.id.poi_search_clear);
 
-        manageSearch();
+        manageSearchListeners();
     }
 
     Runnable searchRunnable = new Runnable() {
@@ -115,7 +132,30 @@ public class SearchResultsFragment extends Fragment {
         }
     };
 
-    public void manageSearch() {
+    private void manageSearchList() {
+        postListLayoutManager = new LinearLayoutManager(getContext());
+        postList.setLayoutManager(postListLayoutManager);
+
+        postList.addOnItemTouchListener(new RecyclerTouchListener(getContext(),
+                postList, new RecyclerViewClickListener() {
+            @Override
+            public void onClick(View view, final int position) {
+                //Values are passing to activity & to fragment as well
+                startActivity(new Intent(getContext(), PlayerActivity.class));
+            }
+
+            @Override
+            public void onLongClick(View view, int position) {
+
+            }
+
+        }));
+
+        postAdapter = new PostAdapter();
+        postList.setAdapter(postAdapter);
+    }
+
+    public void manageSearchListeners() {
         poiSearchEditText.addTextChangedListener(
                 new TextWatcher() {
                     @Override
@@ -168,46 +208,14 @@ public class SearchResultsFragment extends Fragment {
                 }
             }
         });
-    }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-
-        subscriptions.unsubscribe();
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        initViews();
-        initBindings();
-
-        // Initial page load
-        search(currentSearch);
-    }
-
-    private void initViews() {
-        postListLayoutManager = new LinearLayoutManager(getContext());
-        postList.setLayoutManager(postListLayoutManager);
-
-        postList.addOnItemTouchListener(new RecyclerTouchListener(getContext(),
-                postList, new RecyclerViewClickListener() {
+        poiSearchClear.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view, final int position) {
-                //Values are passing to activity & to fragment as well
-                startActivity(new Intent(getContext(), PlayerActivity.class));
+            public void onClick(View v) {
+                poiSearchEditText.setText("");
+                search("");
             }
-
-            @Override
-            public void onLongClick(View view, int position) {
-
-            }
-
-        }));
-
-        postAdapter = new PostAdapter();
-        postList.setAdapter(postAdapter);
+        });
     }
 
     private void hideSoftKeyboard() {

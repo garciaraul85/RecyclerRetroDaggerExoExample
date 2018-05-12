@@ -1,15 +1,14 @@
 apply plugin: 'com.android.application'
-apply plugin: 'com.neenbedankt.android-apt'
 apply plugin: 'me.tatarka.retrolambda'
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion "25.0.2"
+    compileSdkVersion 27
+    buildToolsVersion "27.0.0"
 
     defaultConfig {
         applicationId "com.example.player"
         minSdkVersion 16
-        targetSdkVersion 25
+        targetSdkVersion 27
         versionCode 1
         versionName "1.0"
 
@@ -33,15 +32,15 @@ dependencies {
     testCompile 'org.mockito:mockito-core:1.10.19'
 
     // Support libs
-    compile 'com.android.support:appcompat-v7:25.1.0'
-    compile 'com.android.support:support-v4:25.1.0'
-    compile 'com.android.support:design:25.1.0'
-    compile 'com.android.support:recyclerview-v7:25.1.0'
-    compile 'com.android.support:cardview-v7:25.1.0'
+    compile 'com.android.support:appcompat-v7:27.1.1'
+    compile 'com.android.support:support-v4:27.1.1'
+    compile 'com.android.support:design:27.1.1'
+    compile 'com.android.support:recyclerview-v7:27.1.1'
+    compile 'com.android.support:cardview-v7:27.1.1'
 
     // DI
     compile 'com.google.dagger:dagger:2.0.2'
-    apt 'com.google.dagger:dagger-compiler:2.0.2'
+    annotationProcessor 'com.google.dagger:dagger-compiler:2.0.2'
     provided 'javax.annotation:jsr250-api:1.0'
 
     // HTTP Communication
@@ -68,7 +67,7 @@ dependencies {
     androidTestCompile 'org.mockito:mockito-core:1.10.19'
     androidTestCompile "com.google.dexmaker:dexmaker:1.2"
     androidTestCompile "com.google.dexmaker:dexmaker-mockito:1.2"
-    androidTestApt 'com.google.dagger:dagger-compiler:2.0.2'
+    annotationProcessor 'com.google.dagger:dagger-compiler:2.0.2'
 
     // Gson
     compile group: 'com.google.code.gson', name: 'gson', version: '2.3.1'
@@ -79,9 +78,6 @@ dependencies {
 
     // HttpClient
     compile 'com.squareup.okhttp3:logging-interceptor:3.3.1'
-
-    // ViewModel and LiveData
-    implementation "android.arch.lifecycle:extensions:1.1.1"
 
     // RX
     compile 'io.reactivex:rxjava:1.1.8'
@@ -95,8 +91,18 @@ dependencies {
     compile group: 'commons-io', name: 'commons-io', version: '2.5'
     compile group: 'commons-validator', name: 'commons-validator', version: '1.5.1'
 
-    apt "org.androidannotations:androidannotations:4.0.0"
-    apt 'org.projectlombok:lombok:1.16.8'
+    annotationProcessor "org.androidannotations:androidannotations:4.0.0"
+    annotationProcessor 'org.projectlombok:lombok:1.16.8'
 
     provided 'org.projectlombok:lombok:1.16.8'
+}
+configurations.all {
+    resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+        def requested = details.requested
+        if (requested.group == 'com.android.support') {
+            if (!requested.name.startsWith("multidex")) {
+                details.useVersion '25.1.0'
+            }
+        }
+    }
 }
