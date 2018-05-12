@@ -30,7 +30,7 @@ public class FeedActivity extends AppCompatActivity implements MapsModuleListene
         if (searchResultsFragment != null) {
             FragmentManager fm = getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fm.beginTransaction();
-            fragmentTransaction.add(R.id.container, searchResultsFragment, SearchResultsFragment.TAG);
+            fragmentTransaction.replace(R.id.container, searchResultsFragment, SearchResultsFragment.TAG);
             fragmentTransaction.commit();
         }
     }
