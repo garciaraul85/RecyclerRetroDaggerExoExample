@@ -4,6 +4,8 @@ import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.LifecycleRegistry;
 import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProvider;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -58,7 +60,7 @@ public class SearchResultsFragment extends Fragment implements LifecycleOwner {
 
     MenuItem loadingMenuItem;
 
-    @Inject
+    //@Inject
     FeedViewModel viewModel;
 
     private PostAdapter postAdapter;
@@ -75,6 +77,9 @@ public class SearchResultsFragment extends Fragment implements LifecycleOwner {
     private MapsModuleListener fragmentListener;
 
     private String currentSearch = "";
+
+    @Inject
+    ViewModelProvider.Factory viewModelFactory;
 
     public SearchResultsFragment() {
         // Required empty public constructor
@@ -103,6 +108,13 @@ public class SearchResultsFragment extends Fragment implements LifecycleOwner {
     public void onStart() {
         super.onStart();
         mLifecycleRegistry.markState(Lifecycle.State.STARTED);
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        viewModel = ViewModelProviders.of(this, viewModelFactory).get(FeedViewModel.class);
+        Log.d(TAG, "onActivityCreated: ");
     }
 
     @Override
@@ -277,9 +289,19 @@ public class SearchResultsFragment extends Fragment implements LifecycleOwner {
 
     }
 
+    public boolean isSearchAdded() {
+        return isAdded();
+    }
+
     private void search(String query) {
-        Log.d(TAG, "loadNextPage: " + query);
-        subscriptions.add(viewModel.loadMorePosts(query).subscribe());
+        Log.d(TAG, "_xxxloadNextPage: " + query);
+        if (viewModel.getCurrentList() != null && !viewModel.getCurrentList().isEmpty()) {
+            Log.d(TAG, "_xxxsearch: " + viewModel.getCurrentList().get(0).getNameOfPlace());
+        }
+
+        try {
+            subscriptions.add(viewModel.loadMorePosts(query).subscribe());
+        } catch (NullPointerException e) {}
 
         if (postAdapter != null) {
             postAdapter.notifyDataSetChanged();
@@ -287,8 +309,11 @@ public class SearchResultsFragment extends Fragment implements LifecycleOwner {
     }
 
     private void loadNextPage(String query) {
-        Log.d(TAG, "loadNextPage: " + query);
-        subscriptions.add(viewModel.loadMorePosts(query).subscribe());
+        Log.d(TAG, "_xxxloadNextPage: " + query);
+        try {
+            subscriptions.add(viewModel.loadMorePosts(query).subscribe());
+        } catch (NullPointerException e) {}
+
     }
 
     private void setIsLoading(boolean isLoading) {

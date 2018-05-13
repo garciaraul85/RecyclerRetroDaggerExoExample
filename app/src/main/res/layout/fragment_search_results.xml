@@ -61,7 +61,7 @@
             android:src="@drawable/ic_marker_24"
             app:borderWidth="0dp"
             app:elevation="6dp"
-            android:visibility="gone"
+            android:visibility="visible"
             app:pressedTranslationZ="12dp" />
 
     </LinearLayout>

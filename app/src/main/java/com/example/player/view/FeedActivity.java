@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 
 import com.example.player.DemoApplication;
 import com.example.player.R;
@@ -42,11 +43,14 @@ public class FeedActivity extends AppCompatActivity implements MapsModuleListene
     }
 
     private void showList() {
-        if (searchResultsFragment != null) {
+
+        if (getSupportFragmentManager().findFragmentByTag(SearchResultsFragment.TAG) == null && searchResultsFragment != null && !searchResultsFragment.isSearchAdded()) {
             FragmentManager fm = getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fm.beginTransaction();
-            fragmentTransaction.replace(R.id.container, searchResultsFragment, SearchResultsFragment.TAG);
+            fragmentTransaction.add(R.id.container, searchResultsFragment, SearchResultsFragment.TAG);
+            //fragmentTransaction.addToBackStack(null);
             fragmentTransaction.commit();
+            Log.d("TAG", "_xxx showList: ");
         }
     }
 
