@@ -3,6 +3,7 @@ package com.example.player.dependencyinjection.component;
 import com.example.player.dependencyinjection.module.DemoModule;
 import com.example.player.dependencyinjection.tags.PerActivity;
 import com.example.player.view.FeedActivity;
+import com.example.player.view.PlayerActivity;
 
 import dagger.Component;
 
@@ -13,4 +14,5 @@ import dagger.Component;
 @Component(modules = { DemoModule.class })
 public interface DemoComponent {
     void inject(FeedActivity activity);
+    void inject(PlayerActivity activity);
 }

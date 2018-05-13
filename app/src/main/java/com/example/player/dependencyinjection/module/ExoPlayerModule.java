@@ -4,6 +4,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Handler;
 
+import com.example.player.view.MapFragment;
 import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.LoadControl;
@@ -115,6 +116,12 @@ public class ExoPlayerModule {
         ExtractorMediaSource extractorMediaSource = new ExtractorMediaSource(
                 uri, dataSourceFactory, new DefaultExtractorsFactory(), mainHandler, null);
         return extractorMediaSource;
+    }
+
+    @Provides
+    public MapFragment providesMapFragment() {
+        MapFragment mapFragment = new MapFragment();
+        return mapFragment;
     }
 
 }
