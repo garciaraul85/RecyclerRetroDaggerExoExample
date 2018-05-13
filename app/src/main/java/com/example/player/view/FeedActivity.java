@@ -1,14 +1,16 @@
 package com.example.player.view;
 
+import android.arch.lifecycle.ViewModelProvider;
 import android.os.Bundle;
+import android.support.annotation.UiThread;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 
 import com.example.player.DemoApplication;
 import com.example.player.R;
 import com.example.player.model.MapsModuleListener;
+import com.example.player.viewmodel.FeedViewModel;
 
 import javax.inject.Inject;
 
@@ -30,11 +32,12 @@ public class FeedActivity extends AppCompatActivity implements MapsModuleListene
     @Override
     protected void onResume() {
         super.onResume();
-        showList();
+        loadList();
     }
 
-    private void showMap() {
-        if (mapFragment != null) {
+    @UiThread
+    private void loadMap() {
+        if (getSupportFragmentManager().findFragmentByTag(MapFragment.TAG) == null && mapFragment != null && !mapFragment.isMapAdded()) {
             FragmentManager fm = getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fm.beginTransaction();
             fragmentTransaction.replace(R.id.container, mapFragment, MapFragment.TAG);
@@ -42,26 +45,26 @@ public class FeedActivity extends AppCompatActivity implements MapsModuleListene
         }
     }
 
-    private void showList() {
-
+    @UiThread
+    private void loadList() {
         if (getSupportFragmentManager().findFragmentByTag(SearchResultsFragment.TAG) == null && searchResultsFragment != null && !searchResultsFragment.isSearchAdded()) {
             FragmentManager fm = getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fm.beginTransaction();
-            fragmentTransaction.add(R.id.container, searchResultsFragment, SearchResultsFragment.TAG);
-            //fragmentTransaction.addToBackStack(null);
+            fragmentTransaction.replace(R.id.container, searchResultsFragment, SearchResultsFragment.TAG);
             fragmentTransaction.commit();
-            Log.d("TAG", "_xxx showList: ");
         }
     }
 
+    @UiThread
     @Override
     public void onMapsSearchOpen() {
-        showMap();
+        loadMap();
     }
 
+    @UiThread
     @Override
     public void onMapsSearchClosed() {
-        showList();
+        loadList();
     }
 
     @Override

@@ -49,11 +49,13 @@ public class FeedViewModel extends ViewModel {
 
     public Observable<List<PostViewModel>> loadMorePosts(String query) {
 
+        Log.d(TAG, "loadMorePosts:  = " + query + ", = " + this.query);
+
         if (!this.query.equals(query)) {
             currentList.clear();
             this.query = query;
 
-            Log.d(TAG, "loadMorePosts: " + query);
+            Log.d(TAG, "different query: " + query);
             // Don't try and load if we're already loading
             if (isLoadingSubject.getValue()) {
                 return Observable.empty();
@@ -112,7 +114,7 @@ public class FeedViewModel extends ViewModel {
     }
 
     private void restoreList(List<PostViewModel> list) {
-        Log.d(TAG, "_xxx call: " + list.toString());
+        Log.d(TAG, "_xxx restore: " + list.toString());
 
         List<PostViewModel> fullList = new ArrayList<>(postSubject.getValue());
         fullList.addAll(list);
@@ -128,4 +130,5 @@ public class FeedViewModel extends ViewModel {
     public List<PostViewModel> getCurrentList() {
         return currentList;
     }
+
 }

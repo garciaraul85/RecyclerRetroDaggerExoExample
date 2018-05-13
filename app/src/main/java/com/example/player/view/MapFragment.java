@@ -1,10 +1,15 @@
 package com.example.player.view;
 
+import android.arch.lifecycle.Lifecycle;
+import android.arch.lifecycle.LifecycleOwner;
+import android.arch.lifecycle.LifecycleRegistry;
+import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.location.Location;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
@@ -19,6 +24,7 @@ import com.example.player.DemoApplication;
 import com.example.player.R;
 import com.example.player.model.MapsModuleListener;
 import com.example.player.viewmodel.FeedViewModel;
+import com.example.player.viewmodel.PostViewModel;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -27,13 +33,14 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.inject.Inject;
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class MapFragment extends Fragment implements OnMapReadyCallback {
+public class MapFragment extends Fragment implements OnMapReadyCallback, LifecycleOwner {
 
     public static final String TAG = "MapFragment";
     // Google Map
@@ -52,6 +59,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     FeedViewModel viewModel;
 
+    private LifecycleRegistry mLifecycleRegistry;
+
     @Inject
     ViewModelProvider.Factory viewModelFactory;
 
@@ -60,16 +69,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     }
 
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        viewModel = ViewModelProviders.of(this, viewModelFactory).get(FeedViewModel.class);
-        Log.d(TAG, "onCreate: ");
-    }
-
-    @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        //viewModel = ViewModelProviders.of(this, viewModelFactory).get(FeedViewModel.class);
+        viewModel = ViewModelProviders.of(this, viewModelFactory).get(FeedViewModel.class);
+    }
+
+    public boolean isMapAdded() {
+        return isAdded();
     }
 
     @Override
@@ -82,6 +88,19 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 throw new ClassCastException("Activity must implement MapsModuleListener.");
             }
         }
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mLifecycleRegistry = new LifecycleRegistry(this);
+        mLifecycleRegistry.markState(Lifecycle.State.CREATED);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        mLifecycleRegistry.markState(Lifecycle.State.STARTED);
     }
 
     @Override
@@ -135,5 +154,15 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         }
 
         jumpToDefaultLocation();
+
+        for (PostViewModel viewModel : viewModel.getCurrentList()) {
+            Log.d(TAG, "_xxx  Place: " + viewModel.getNameOfPlace());
+        }
+    }
+
+    @NonNull
+    @Override
+    public Lifecycle getLifecycle() {
+        return mLifecycleRegistry;
     }
 }
