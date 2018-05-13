@@ -72,7 +72,7 @@ public class FeedViewModel extends ViewModel {
                     .flatMapIterable(Response::getVenues)
                     .filter(Venue.class::isInstance)
                     // Transform model to viewmodel
-                    .map(link -> new PostViewModel((Venue) link))
+                    .map(PostViewModel::new)
                     // Merge viewmodels into a single list to be emitted
                     .toList()
                     // Concatenate the new posts to the current posts list, then emit it via the post subject

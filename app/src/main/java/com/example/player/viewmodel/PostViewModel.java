@@ -2,6 +2,7 @@ package com.example.player.viewmodel;
 
 import com.example.player.model.Result;
 import com.example.player.model.Venue;
+import com.google.android.gms.maps.model.LatLng;
 
 import lombok.Data;
 import lombok.NonNull;
@@ -12,17 +13,22 @@ import lombok.NonNull;
 @Data
 public class PostViewModel {
 
+    private String id;
     private String nameOfPlace;
     private String categoryOfPlace;
     private String iconUrl;
     private String iconExtension = ".png";
     private String homePage;
-    private double latitude;
-    private double longitude;
+    private LatLng latLng;
+    private double distanceToCenter;
     private boolean favorite;
 
     public PostViewModel(@NonNull Venue venue) {
         this.nameOfPlace = venue.getName();
+
+        if (venue.getId() != null) {
+            this.id = venue.getId();
+        }
 
         if (venue.getCategories() != null && !venue.getCategories().isEmpty()) {
             this.categoryOfPlace = venue.getCategories().get(0).getName();
@@ -38,8 +44,7 @@ public class PostViewModel {
         }
 
         if (venue.getLocation() != null) {
-            this.latitude = venue.getLocation().getLat();
-            this.longitude = venue.getLocation().getLng();
+            this.latLng = new LatLng(venue.getLocation().getLat(), venue.getLocation().getLng());
         }
 
     }
@@ -74,5 +79,45 @@ public class PostViewModel {
 
     public void setIconExtension(String iconExtension) {
         this.iconExtension = iconExtension;
+    }
+
+    public String getHomePage() {
+        return homePage;
+    }
+
+    public void setHomePage(String homePage) {
+        this.homePage = homePage;
+    }
+
+    public LatLng getLatLng() {
+        return latLng;
+    }
+
+    public void setLatLng(LatLng latLng) {
+        this.latLng = latLng;
+    }
+
+    public boolean isFavorite() {
+        return favorite;
+    }
+
+    public void setFavorite(boolean favorite) {
+        this.favorite = favorite;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public double getDistanceToCenter() {
+        return distanceToCenter;
+    }
+
+    public void setDistanceToCenter(double distanceToCenter) {
+        this.distanceToCenter = distanceToCenter;
     }
 }

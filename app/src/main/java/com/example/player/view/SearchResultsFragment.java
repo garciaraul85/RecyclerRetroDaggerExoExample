@@ -191,7 +191,7 @@ public class SearchResultsFragment extends Fragment implements LifecycleOwner {
 
         }));
 
-        postAdapter = new PostAdapter();
+        postAdapter = new PostAdapter(getActivity().getApplicationContext());
         postList.setAdapter(postAdapter);
     }
 
@@ -339,7 +339,7 @@ public class SearchResultsFragment extends Fragment implements LifecycleOwner {
         showMapButton.setOnClickListener(v -> {
             if (fragmentListener != null) {
                 hideSoftKeyboard();
-                fragmentListener.onMapsSearchOpen();
+                fragmentListener.onMapsSearchOpen(viewModel.getCurrentList());
             }
         });
     }

@@ -11,6 +11,9 @@ import com.example.player.DemoApplication;
 import com.example.player.R;
 import com.example.player.model.MapsModuleListener;
 import com.example.player.viewmodel.FeedViewModel;
+import com.example.player.viewmodel.PostViewModel;
+
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -36,11 +39,14 @@ public class FeedActivity extends AppCompatActivity implements MapsModuleListene
     }
 
     @UiThread
-    private void loadMap() {
+    private void loadMap(List<PostViewModel> postViewModelList) {
         if (getSupportFragmentManager().findFragmentByTag(MapFragment.TAG) == null && mapFragment != null && !mapFragment.isMapAdded()) {
             FragmentManager fm = getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fm.beginTransaction();
             fragmentTransaction.replace(R.id.container, mapFragment, MapFragment.TAG);
+
+            // Pass the Pois List into the map
+            mapFragment.setPostViewModelList(postViewModelList);
             fragmentTransaction.commit();
         }
     }
@@ -57,8 +63,8 @@ public class FeedActivity extends AppCompatActivity implements MapsModuleListene
 
     @UiThread
     @Override
-    public void onMapsSearchOpen() {
-        loadMap();
+    public void onMapsSearchOpen(List<PostViewModel> postViewModelList) {
+        loadMap(postViewModelList);
     }
 
     @UiThread

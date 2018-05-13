@@ -31,6 +31,8 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,6 +62,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Lifecyc
     FeedViewModel viewModel;
 
     private LifecycleRegistry mLifecycleRegistry;
+    private List<PostViewModel> postViewModelList;
 
     @Inject
     ViewModelProvider.Factory viewModelFactory;
@@ -155,14 +158,46 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Lifecyc
 
         jumpToDefaultLocation();
 
-        for (PostViewModel viewModel : viewModel.getCurrentList()) {
-            Log.d(TAG, "_xxx  Place: " + viewModel.getNameOfPlace());
+        if (this.postViewModelList != null && !this.postViewModelList.isEmpty()) {
+            for (PostViewModel viewModel : this.postViewModelList) {
+                Log.d(TAG, "_xxx  Place: " + viewModel.getNameOfPlace());
+                if (viewModel.getLatLng() != null && viewModel.getId() != null) {
+                    mMarkerPoints.add(viewModel.getLatLng());
+                    googleMap.addMarker(new MarkerOptions().position(viewModel.getLatLng())
+                            .title(viewModel.getNameOfPlace()));
+                }
+            }
         }
+
+        googleMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+            @Override
+            public void onInfoWindowClick(Marker marker) {
+                Log.d(TAG, "_xxx onInfoWindowClick: " + marker.getTitle());
+                if (postViewModelList != null && !postViewModelList.isEmpty()) {
+                    for (PostViewModel viewModel : postViewModelList) {
+                        if (viewModel.getNameOfPlace() != null && marker.getTitle() != null && viewModel.getNameOfPlace().equals(marker.getTitle())) {
+                            Log.d(TAG, "onInfoWindowClick: " + viewModel.getNameOfPlace());
+                            break;
+                        }
+                    }
+                }
+            }
+        });
     }
 
     @NonNull
     @Override
     public Lifecycle getLifecycle() {
         return mLifecycleRegistry;
+    }
+
+    public void setPostViewModelList(List<PostViewModel> postViewModelList) {
+        if (this.postViewModelList != null) {
+            this.postViewModelList.clear();
+        }
+        if (postViewModelList == null) {
+            postViewModelList = new ArrayList<>();
+        }
+        this.postViewModelList = postViewModelList;
     }
 }
