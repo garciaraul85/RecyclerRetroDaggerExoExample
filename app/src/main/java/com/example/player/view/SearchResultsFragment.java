@@ -281,6 +281,7 @@ public class SearchResultsFragment extends Fragment implements LifecycleOwner {
     }
 
     private void initBindings() {
+        Log.d(TAG, "_bbb initBindings: ");
         // Observable that emits when the RecyclerView is scrolled to the bottom
         Observable<Void> infiniteScrollObservable = Observable.create(subscriber -> {
             postList.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -309,7 +310,7 @@ public class SearchResultsFragment extends Fragment implements LifecycleOwner {
     }
 
     private void search(String query) {
-        Log.d(TAG, "_xxxloadNextPage: " + query);
+        Log.d(TAG, "_bbb loadNextPage: " + query);
         if (viewModel.getCurrentList() != null && !viewModel.getCurrentList().isEmpty()) {
             Log.d(TAG, "_xxxsearch: " + viewModel.getCurrentList().get(0).getNameOfPlace());
         }
@@ -324,7 +325,7 @@ public class SearchResultsFragment extends Fragment implements LifecycleOwner {
     }
 
     private void loadNextPage(String query) {
-        Log.d(TAG, "_xxxloadNextPage: " + query);
+        Log.d(TAG, "_bbbloadNextPage: " + query);
         try {
             subscriptions.add(viewModel.loadMorePosts(query).subscribe());
         } catch (NullPointerException e) {}

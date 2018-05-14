@@ -42,12 +42,17 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
     }
 
     public void bind(PostViewModel viewModel) {
-        Log.d("TAG", "IS FAV: " + viewModel.isFavorite() + ", = " + viewModel.getNameOfPlace());
+        Log.d("TAG", "IS FAV: " + viewModel.isFavorite() + ", = " + viewModel.getNameOfPlace() + ", " + viewModel.getId());
         nameTextView.setText(viewModel.getNameOfPlace());
         categoryTextView.setText(viewModel.getCategoryOfPlace());
-        if (viewModel.getLatLng() != null) {
-            double distance = MapsUtil.CalculationByDistance(mDefaultLocation, viewModel.getLatLng());
-            distanceTextView.setText(String.format("%s%s%s", context.getString(R.string.distance), distance, context.getString(R.string.distance_mes)));
+        if (viewModel.getLatLn() != null) {
+
+            String[] latLn = viewModel.getLatLn().split(",");
+            if (latLn.length > 0) {
+                LatLng latLng = new LatLng(Double.valueOf(latLn[0]), Double.valueOf(latLn[1]));
+                double distance = MapsUtil.CalculationByDistance(mDefaultLocation, latLng);
+                distanceTextView.setText(String.format("%s%s%s", context.getString(R.string.distance), distance, context.getString(R.string.distance_mes)));
+            }
         }
 
         //UrlValidator urlValidator = new UrlValidator();

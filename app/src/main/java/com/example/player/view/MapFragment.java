@@ -3,6 +3,7 @@ package com.example.player.view;
 import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.LifecycleRegistry;
+import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
@@ -50,10 +51,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Lifecyc
     // Coordinates Seattle (47.6062° N, 122.3321°W)  takes me to somewhere in Asia so I changed it to real Seattle Coordinates. ;)
     private final LatLng mDefaultLocation = new LatLng(47.608013, -122.335167);
 
-    private ArrayList<LatLng> mMarkerPoints;
-
-    private SupportMapFragment mapFragment;
-
     private MapsModuleListener fragmentListener;
 
     private FloatingActionButton showListButton;
@@ -67,6 +64,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Lifecyc
 
     @Inject
     ViewModelProvider.Factory viewModelFactory;
+
+    private MutableLiveData<GoogleMap> googleMapMutableLiveData = new MutableLiveData<>();
 
     public MapFragment() {
         // Required empty public constructor
@@ -136,7 +135,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Lifecyc
      * Function to load map.
      * */
     private void initializeFragmentMap() {
-        mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
+        SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         if (mapFragment == null) {
             FragmentManager fragmentManager = getFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
@@ -147,7 +146,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Lifecyc
     }
 
     /**
-     * In our case jump to Seaattle
+     * In our case jump to Seattle
      */
     private void jumpToDefaultLocation() {
         this.mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mDefaultLocation, DEFAULT_ZOOM));
@@ -161,68 +160,86 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Lifecyc
     @Override
     public void onMapReady(GoogleMap googleMap) {
         this.mGoogleMap = googleMap;
-        if (mMarkerPoints == null) {
-            mMarkerPoints = new ArrayList<>();
+
+        googleMapMutableLiveData.postValue(googleMap);
+
+        if (uuId != null) {
+            // Print selected poi marker
+            printSelectedPoi(googleMap);
+        } else {
+            // Print all pois markers
+            if (postViewModelList != null && postViewModelList.isEmpty()) {
+                printAllPoisMarkers(googleMap, postViewModelList);
+            } else {
+                printAllPoisMarkersFromCache(mGoogleMap);
+            }
         }
 
-                // Print selected poi marker
-        if (uuId != null) {
-            final Observer<PostViewModel> postViewModelObserver = postViewModel -> {
-                fragmentListener.onPoiSelected(postViewModel);
+    }
 
-                if (postViewModel != null && postViewModel.getLatLn() != null) {
-                    String[] latLn = postViewModel.getLatLn().split(",");
+    private void printSelectedPoi(GoogleMap googleMap) {
+        final Observer<PostViewModel> postViewModelObserver = postViewModel -> {
+            fragmentListener.onPoiSelected(postViewModel);
 
-                    if (latLn != null && latLn.length > 0) {
-                        LatLng poiLocation = new LatLng(Double.valueOf(latLn[0]), Double.valueOf(latLn[1]));
+            if (postViewModel != null && postViewModel.getLatLn() != null) {
+                String[] latLn = postViewModel.getLatLn().split(",");
 
-                        jumpToPoiLocation(poiLocation);
-                        googleMap.addMarker(new MarkerOptions().position(
-                                poiLocation).title(postViewModel.getNameOfPlace()));
+                if (latLn.length > 0) {
+                    LatLng poiLocation = new LatLng(Double.valueOf(latLn[0]), Double.valueOf(latLn[1]));
 
-                        googleMap.addMarker(new MarkerOptions().position(
-                                mDefaultLocation).title(getString(R.string.def_location)));
-                    }
+                    jumpToPoiLocation(poiLocation);
+                    googleMap.addMarker(new MarkerOptions().position(
+                            poiLocation).title(postViewModel.getNameOfPlace()));
+
+                    googleMap.addMarker(new MarkerOptions().position(
+                            mDefaultLocation).title(getString(R.string.def_location)));
                 }
-            };
-            viewModel.getSelectedPoi(uuId).observe(this, postViewModelObserver);
-        } else {
+            }
+        };
+        viewModel.getSelectedPoi(uuId).observe(this, postViewModelObserver);
+    }
 
-            jumpToDefaultLocation();
-            showListButton.setVisibility(View.VISIBLE);
+    private void printAllPoisMarkers(GoogleMap googleMap, List<PostViewModel> postViewModelList) {
+        jumpToDefaultLocation();
+        showListButton.setVisibility(View.VISIBLE);
 
-            // Print all pois markers
-            if (this.postViewModelList != null && !this.postViewModelList.isEmpty()) {
-                for (PostViewModel viewModel : this.postViewModelList) {
-                    if (viewModel.getLatLng() != null && viewModel.getUid() != null) {
-                        mMarkerPoints.add(viewModel.getLatLng());
-                        googleMap.addMarker(new MarkerOptions().position(viewModel.getLatLng())
+        if (postViewModelList != null && !postViewModelList.isEmpty()) {
+            for (PostViewModel viewModel : postViewModelList) {
+                if (viewModel.getLatLn() != null && viewModel.getUid() != null) {
+                    String[] latLn = viewModel.getLatLn().split(",");
+                    if (latLn.length > 0) {
+                        LatLng poiLocation = new LatLng(Double.valueOf(latLn[0]), Double.valueOf(latLn[1]));
+                        googleMap.addMarker(new MarkerOptions().position(poiLocation)
                                 .title(viewModel.getNameOfPlace()));
                     }
                 }
             }
-
-            // Select poi marker
-            googleMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
-                @Override
-                public void onInfoWindowClick(Marker marker) {
-                    Log.d(TAG, "_xxx onInfoWindowClick: " + marker.getTitle());
-                    if (postViewModelList != null && !postViewModelList.isEmpty()) {
-                        for (PostViewModel viewModel : postViewModelList) {
-                            if (viewModel.getNameOfPlace() != null && marker.getTitle() != null && viewModel.getNameOfPlace().equals(marker.getTitle())) {
-                                Log.d(TAG, "onInfoWindowClick: " + viewModel.getNameOfPlace());
-                                String uuid = viewModel.getUid();
-                                Intent intent = new Intent(getContext(), PlayerActivity.class);
-                                intent.putExtra("uuid", uuid);
-                                startActivity(intent);
-                                break;
-                            }
-                        }
-                    }
-                }
-            });
         }
 
+        // Select poi marker
+        googleMap.setOnInfoWindowClickListener(marker -> {
+            Log.d(TAG, "_xxx onInfoWindowClick: " + marker.getTitle());
+            if (postViewModelList != null && !postViewModelList.isEmpty()) {
+                for (PostViewModel viewModel : postViewModelList) {
+                    if (viewModel.getNameOfPlace() != null && marker.getTitle() != null &&
+                            viewModel.getNameOfPlace().equals(marker.getTitle())) {
+                        Log.d(TAG, "onInfoWindowClick: " + viewModel.getNameOfPlace());
+                        String uuid = viewModel.getUid();
+                        Intent intent = new Intent(getContext(), PlayerActivity.class);
+                        intent.putExtra("uuid", uuid);
+                        startActivity(intent);
+                        break;
+                    }
+                }
+            }
+        });
+    }
+
+    private void printAllPoisMarkersFromCache(GoogleMap googleMap) {
+        final Observer<List<PostViewModel>> postViewModelObserver = postViewModelList -> {
+            printAllPoisMarkers(googleMap, postViewModelList);
+        };
+        viewModel.getShowListPoisMap().observe(this, postViewModelObserver);
     }
 
     @NonNull
@@ -235,9 +252,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Lifecyc
         if (this.postViewModelList != null) {
             this.postViewModelList.clear();
         }
-        if (postViewModelList == null) {
+        if (postViewModelList == null || postViewModelList.isEmpty()) {
             postViewModelList = new ArrayList<>();
         }
+
         this.postViewModelList = postViewModelList;
     }
 }

@@ -6,7 +6,6 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import com.example.player.client.FourSquaresClient;
-import com.example.player.db.AppDatabase;
 import com.example.player.db.SugarVenueDAO;
 import com.example.player.model.Response;
 import com.example.player.model.Result;
@@ -39,6 +38,7 @@ public class FeedViewModel extends ViewModel {
     private List<PostViewModel> currentList;
 
     private MutableLiveData<Boolean> showResultsMapFab = new MutableLiveData<>();
+    private static MutableLiveData<List<PostViewModel>> showListPoisMap = new MutableLiveData<>();
 
     private MutableLiveData<PostViewModel> selectedItem = new MutableLiveData<>();
 
@@ -59,7 +59,7 @@ public class FeedViewModel extends ViewModel {
             currentList.clear();
             this.query = query;
 
-            Log.d(TAG, "different query: " + query);
+            Log.d(TAG, "_bbb different query: " + query);
             // Don't try and load if we're already loading
             if (isLoadingSubject.getValue()) {
                 return Observable.empty();
@@ -83,7 +83,7 @@ public class FeedViewModel extends ViewModel {
                     .doOnNext(this::call)
                     .doOnTerminate(() -> isLoadingSubject.onNext(false));
         } else {
-            Log.d(TAG, "_xxx return previous search: ");
+            Log.d(TAG, "_bbb return previous search: ");
             new getLastSearchTask().execute();
             return null;
         }
@@ -108,6 +108,11 @@ public class FeedViewModel extends ViewModel {
     public MutableLiveData<PostViewModel> getSelectedPoi(String uid) {
         new getCurrentItemTask().execute(uid);
         return selectedItem;
+    }
+
+    public MutableLiveData<List<PostViewModel>> getShowListPoisMap() {
+        new getLastSearchPoiTask().execute();
+        return showListPoisMap;
     }
 
     private void call(List<PostViewModel> list) {
@@ -138,7 +143,7 @@ public class FeedViewModel extends ViewModel {
         protected List<PostViewModel> doInBackground(List<PostViewModel>... lists) {
             SugarVenueDAO.clearLastSearch();
             int size = SugarVenueDAO.getPois().size();
-            Log.d(TAG, "doInBackground: " + size);
+            Log.d(TAG, "_bbbbb ClearLastSearchTask after clear: " + size);
             return lists[0];
         }
 
@@ -154,10 +159,10 @@ public class FeedViewModel extends ViewModel {
         @Override
         protected String doInBackground(List<PostViewModel>... lists) {
             int size = SugarVenueDAO.getPois().size();
-            Log.d(TAG, "doInBackground1: " + size);
+            Log.d(TAG, "_bbb CacheLastSearchTask before: " + size);
             SugarVenueDAO.insertLastSearch(lists[0]);
             int size2 = SugarVenueDAO.getPois().size();
-            Log.d(TAG, "doInBackground2: " + size2);
+            Log.d(TAG, "_bbb CacheLastSearchTask after: " + size2);
             return null;
         }
 
@@ -177,10 +182,26 @@ public class FeedViewModel extends ViewModel {
 
         @Override
         protected void onPostExecute(List<PostViewModel> postViewModelList) {
+            Log.d(TAG, "_bbb getLastSearchTask: " + postViewModelList.toString());
             super.onPostExecute(postViewModelList);
             currentList.addAll(postViewModelList);
             postSubject.onNext(postViewModelList);
             showResultsMapFab.postValue(!postViewModelList.isEmpty());
+        }
+    }
+
+    private class getLastSearchPoiTask extends AsyncTask<Void, Void, List<PostViewModel>> {
+
+        @Override
+        protected List<PostViewModel> doInBackground(Void... voids) {
+            return SugarVenueDAO.getPois();
+        }
+
+        @Override
+        protected void onPostExecute(List<PostViewModel> postViewModelList) {
+            Log.d(TAG, "_bbb getLastSearchTaskMap: " + postViewModelList.toString());
+            super.onPostExecute(postViewModelList);
+            showListPoisMap.postValue(postViewModelList);
         }
     }
 
