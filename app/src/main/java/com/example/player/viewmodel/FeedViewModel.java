@@ -84,7 +84,7 @@ public class FeedViewModel extends ViewModel {
                     .doOnTerminate(() -> isLoadingSubject.onNext(false));
         } else {
             Log.d(TAG, "_xxx return previous search: ");
-            restoreList(currentList);
+            new getLastSearchTask().execute();
             return null;
         }
     }
@@ -122,13 +122,6 @@ public class FeedViewModel extends ViewModel {
 
         // Cache last search to show it in other views.
         new ClearLastSearchTask().execute(list);
-    }
-
-    private void restoreList(List<PostViewModel> list) {
-        Log.d(TAG, "_xxx restore: " + list.toString());
-
-        postSubject.onNext(list);
-        showResultsMapFab.postValue(!list.isEmpty());
     }
 
     public MutableLiveData<Boolean> getShowResultsMapFab() {
@@ -214,5 +207,9 @@ public class FeedViewModel extends ViewModel {
             return null;
         }
 
+    }
+
+    public String getQuery() {
+        return query;
     }
 }

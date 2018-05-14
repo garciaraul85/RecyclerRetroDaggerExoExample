@@ -39,8 +39,10 @@ public class SugarVenueDAO {
             for (PostViewModel postViewModel : postViewModelList) {
                 PostViewModel existingPoi = getPoiByUid(postViewModel.getUid());
                 if (existingPoi == null) { // Poi doesnt exist, save it
+                    Log.d("TAG", "_ppp insertLastSearch: " + postViewModel.getNameOfPlace());
                     PostViewModel.save(postViewModel);
                 } else { // else update it
+                    Log.d("TAG", "_ppp Update data: " + postViewModel.getNameOfPlace());
                     existingPoi.setHomePage(postViewModel.getHomePage());
                     existingPoi.setCategoryOfPlace(postViewModel.getCategoryOfPlace());
                     existingPoi.setIconExtension(postViewModel.getIconExtension());

@@ -153,14 +153,11 @@ public class SearchResultsFragment extends Fragment implements LifecycleOwner {
     @Override
     public void onResume() {
         super.onResume();
-
         Log.d(TAG, "_yyy onResume: ");
-/*        showFab();
-        manageSearchList();
-        initBindings();
 
-        // Initial page load
-        search(currentSearch);*/
+        if (viewModel != null && viewModel.getQuery() != null && !viewModel.getQuery().equals("")) {
+            search(viewModel.getQuery());
+        }
     }
 
     @UiThread
