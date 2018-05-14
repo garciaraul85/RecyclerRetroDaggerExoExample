@@ -4,26 +4,26 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Handler;
 
-import com.google.android.exoplayer2.DefaultLoadControl;
-import com.google.android.exoplayer2.ExoPlayerFactory;
-import com.google.android.exoplayer2.LoadControl;
-import com.google.android.exoplayer2.SimpleExoPlayer;
-import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
-import com.google.android.exoplayer2.source.ExtractorMediaSource;
-import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.trackselection.AdaptiveVideoTrackSelection;
-import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
-import com.google.android.exoplayer2.trackselection.TrackSelection;
-import com.google.android.exoplayer2.trackselection.TrackSelector;
-import com.google.android.exoplayer2.upstream.DataSource;
-import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
-import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
-import com.google.android.exoplayer2.upstream.HttpDataSource;
-import com.google.android.exoplayer2.util.Util;
+import com.example.player.BuildConfig;
+import com.example.player.client.FourSquaresClient;
+import com.example.player.deserializer.DateDeserializer;
+import com.example.player.deserializer.ObjectJsonDeserializer;
+import com.example.player.model.BaseObject;
+import com.example.player.view.MapFragment;
+import com.google.gson.FieldNamingPolicy;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
+import java.util.Date;
 
 import dagger.Module;
 import dagger.Provides;
+import okhttp3.OkHttpClient;
+import okhttp3.logging.HttpLoggingInterceptor;
+import retrofit2.Retrofit;
+import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
+import retrofit2.converter.gson.GsonConverterFactory;
+import rx.schedulers.Schedulers;
 
 /**
  * Created by linke_000 on 18/08/2017.
@@ -38,83 +38,43 @@ public class ExoPlayerModule {
         this.videoUri = videoUri;
     }
 
+    @Provides
+    public FourSquaresClient provideMoviesClient() {
+        Gson gson = new GsonBuilder()
+                .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
+                .registerTypeAdapter(BaseObject.class, new ObjectJsonDeserializer())
+                .registerTypeAdapter(Date.class, new DateDeserializer())
+                .create();
+
+        RxJavaCallAdapterFactory rxAdapter = RxJavaCallAdapterFactory.createWithScheduler(Schedulers.io());
+
+        HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
+        interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+        OkHttpClient.Builder okHttpClientBuilder = new OkHttpClient.Builder();
+        if (BuildConfig.DEBUG) {
+            okHttpClientBuilder.addInterceptor(interceptor);
+        }
+        OkHttpClient client = okHttpClientBuilder.build();
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("https://api.foursquare.com")
+                .client(client)
+                .addConverterFactory(GsonConverterFactory.create(gson))
+                .addCallAdapterFactory(rxAdapter)
+                .build();
+
+        return retrofit.create(FourSquaresClient.class);
+    }
+
     @Provides //scope is not necessary for parameters stored within the module
     public Context context() {
         return context;
     }
 
     @Provides
-    public Handler provideMoviesClient() {
-        Handler handler = new Handler();
-        return handler;
-    }
-
-    @Provides
-    public DefaultBandwidthMeter providesDefaultBandwidthMeter() {
-        DefaultBandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
-        return bandwidthMeter;
-    }
-
-    // Create player
-
-    @Provides
-    public TrackSelection.Factory providesVideoTrackSelection(
-            DefaultBandwidthMeter bandwidthMeter) {
-        TrackSelection.Factory videoTrackSelectionFactory =
-                new AdaptiveVideoTrackSelection.Factory(bandwidthMeter);
-        return videoTrackSelectionFactory;
-    }
-
-    @Provides
-    public TrackSelector providesTrackSelector(TrackSelection.Factory videoTrackSelectionFactory) {
-        TrackSelector trackSelector = new DefaultTrackSelector(videoTrackSelectionFactory);
-        return trackSelector;
-    }
-
-    @Provides
-    public LoadControl providesLoadControl() {
-        LoadControl loadControl = new DefaultLoadControl();
-        return loadControl;
-    }
-
-    @Provides
-    public SimpleExoPlayer providesExoPlayer(
-            Context context, TrackSelector trackSelector, LoadControl loadControl) {
-        SimpleExoPlayer player = ExoPlayerFactory.
-                newSimpleInstance(context, trackSelector, loadControl);
-        return player;
-    }
-
-    // Prepare player
-    @Provides
-    public String providesUserAgent(Context context) {
-        return Util.getUserAgent(context, "AppName");
-    }
-
-    @Provides
-    public HttpDataSource.Factory providesHttpDataSource(
-            String userAgent, DefaultBandwidthMeter bandwidthMeter) {
-        DefaultHttpDataSourceFactory factory =
-                new DefaultHttpDataSourceFactory(userAgent, bandwidthMeter);
-        return factory;
-    }
-
-    @Provides
-    public DataSource.Factory providesDataSource(
-            Context context, DefaultBandwidthMeter bandwidthMeter,
-            HttpDataSource.Factory httpDataSource) {
-        DefaultDataSourceFactory factory = new DefaultDataSourceFactory(
-                context, bandwidthMeter, httpDataSource);
-        return factory;
-    }
-
-    @Provides
-    public MediaSource providesMediaSource(DataSource.Factory dataSourceFactory,
-                                           Handler mainHandler) {
-        Uri uri = Uri.parse(videoUri);
-        ExtractorMediaSource extractorMediaSource = new ExtractorMediaSource(
-                uri, dataSourceFactory, new DefaultExtractorsFactory(), mainHandler, null);
-        return extractorMediaSource;
+    public MapFragment providesMapFragment() {
+        MapFragment mapFragment = new MapFragment();
+        return mapFragment;
     }
 
 }

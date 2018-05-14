@@ -4,6 +4,8 @@ import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.LifecycleRegistry;
 import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProvider;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -58,7 +60,7 @@ public class SearchResultsFragment extends Fragment implements LifecycleOwner {
 
     MenuItem loadingMenuItem;
 
-    @Inject
+    //@Inject
     FeedViewModel viewModel;
 
     private PostAdapter postAdapter;
@@ -76,6 +78,9 @@ public class SearchResultsFragment extends Fragment implements LifecycleOwner {
 
     private String currentSearch = "";
 
+    @Inject
+    ViewModelProvider.Factory viewModelFactory;
+
     public SearchResultsFragment() {
         // Required empty public constructor
     }
@@ -90,6 +95,7 @@ public class SearchResultsFragment extends Fragment implements LifecycleOwner {
                 throw new ClassCastException("Activity must implement MapsModuleListener.");
             }
         }
+        Log.d(TAG, "_yyy onAttach: ");
     }
 
     @Override
@@ -97,17 +103,34 @@ public class SearchResultsFragment extends Fragment implements LifecycleOwner {
         super.onCreate(savedInstanceState);
         mLifecycleRegistry = new LifecycleRegistry(this);
         mLifecycleRegistry.markState(Lifecycle.State.CREATED);
+        Log.d(TAG, "_yyy onCreate: ");
     }
 
     @Override
     public void onStart() {
         super.onStart();
         mLifecycleRegistry.markState(Lifecycle.State.STARTED);
+        Log.d(TAG, "_yyy onStart: ");
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        viewModel = ViewModelProviders.of(this, viewModelFactory).get(FeedViewModel.class);
+        Log.d(TAG, "_yyy onActivityCreated: ");
+
+        showFab();
+        manageSearchList();
+        initBindings();
+
+        // Initial page load
+        search(currentSearch);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        Log.d(TAG, "_yyy onCreateView: ");
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_search_results, container, false);
 
@@ -123,19 +146,18 @@ public class SearchResultsFragment extends Fragment implements LifecycleOwner {
     public void onDestroy() {
         super.onDestroy();
 
+        Log.d(TAG, "_yyy onDestroy: ");
         subscriptions.unsubscribe();
     }
 
     @Override
     public void onResume() {
         super.onResume();
+        Log.d(TAG, "_yyy onResume: ");
 
-        showFab();
-        manageSearchList();
-        initBindings();
-
-        // Initial page load
-        search(currentSearch);
+        if (viewModel != null && viewModel.getQuery() != null && !viewModel.getQuery().equals("")) {
+            search(viewModel.getQuery());
+        }
     }
 
     @UiThread
@@ -160,6 +182,7 @@ public class SearchResultsFragment extends Fragment implements LifecycleOwner {
         }
     };
 
+    int cont;
     private void manageSearchList() {
         postListLayoutManager = new LinearLayoutManager(getContext());
         postList.setLayoutManager(postListLayoutManager);
@@ -169,7 +192,11 @@ public class SearchResultsFragment extends Fragment implements LifecycleOwner {
             @Override
             public void onClick(View view, final int position) {
                 //Values are passing to activity & to fragment as well
-                startActivity(new Intent(getContext(), PlayerActivity.class));
+                Log.d(TAG, "_yyy: " + cont);
+                String uuid = viewModel.getSelectedTitle(position);
+                Intent intent = new Intent(getContext(), PlayerActivity.class);
+                intent.putExtra("uuid", uuid);
+                startActivity(intent);
             }
 
             @Override
@@ -179,7 +206,7 @@ public class SearchResultsFragment extends Fragment implements LifecycleOwner {
 
         }));
 
-        postAdapter = new PostAdapter();
+        postAdapter = new PostAdapter(getActivity().getApplicationContext());
         postList.setAdapter(postAdapter);
     }
 
@@ -254,6 +281,7 @@ public class SearchResultsFragment extends Fragment implements LifecycleOwner {
     }
 
     private void initBindings() {
+        Log.d(TAG, "_bbb initBindings: ");
         // Observable that emits when the RecyclerView is scrolled to the bottom
         Observable<Void> infiniteScrollObservable = Observable.create(subscriber -> {
             postList.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -277,9 +305,19 @@ public class SearchResultsFragment extends Fragment implements LifecycleOwner {
 
     }
 
+    public boolean isSearchAdded() {
+        return isAdded();
+    }
+
     private void search(String query) {
-        Log.d(TAG, "loadNextPage: " + query);
-        subscriptions.add(viewModel.loadMorePosts(query).subscribe());
+        Log.d(TAG, "_bbb loadNextPage: " + query);
+        if (viewModel.getCurrentList() != null && !viewModel.getCurrentList().isEmpty()) {
+            Log.d(TAG, "_xxxsearch: " + viewModel.getCurrentList().get(0).getNameOfPlace());
+        }
+
+        try {
+            subscriptions.add(viewModel.loadMorePosts(query).subscribe());
+        } catch (NullPointerException e) {}
 
         if (postAdapter != null) {
             postAdapter.notifyDataSetChanged();
@@ -287,8 +325,11 @@ public class SearchResultsFragment extends Fragment implements LifecycleOwner {
     }
 
     private void loadNextPage(String query) {
-        Log.d(TAG, "loadNextPage: " + query);
-        subscriptions.add(viewModel.loadMorePosts(query).subscribe());
+        Log.d(TAG, "_bbbloadNextPage: " + query);
+        try {
+            subscriptions.add(viewModel.loadMorePosts(query).subscribe());
+        } catch (NullPointerException e) {}
+
     }
 
     private void setIsLoading(boolean isLoading) {
@@ -298,7 +339,7 @@ public class SearchResultsFragment extends Fragment implements LifecycleOwner {
     }
 
     private void showFab() {
-        final Observer<Boolean> elapsedTimeObserver = showFab -> {
+        final Observer<Boolean> showFabObserver = showFab -> {
             if (showMapButton != null) {
                 if (showFab != null && showFab) {
                     showMapButton.setVisibility(View.VISIBLE);
@@ -308,13 +349,13 @@ public class SearchResultsFragment extends Fragment implements LifecycleOwner {
             }
         };
 
-        viewModel.getShowResultsMapFab().observe(this, elapsedTimeObserver);
+        viewModel.getShowResultsMapFab().observe(this, showFabObserver);
 
         // Show the list in a map format
         showMapButton.setOnClickListener(v -> {
             if (fragmentListener != null) {
                 hideSoftKeyboard();
-                fragmentListener.onMapsSearchOpen();
+                fragmentListener.onMapsSearchOpen(viewModel.getCurrentList());
             }
         });
     }

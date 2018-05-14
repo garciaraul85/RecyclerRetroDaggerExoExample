@@ -8,4 +8,70 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="AppTheme.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <style name="DetailViewUpNav">
+        <item name="android:layout_marginStart">4dp</item>
+        <item name="android:layout_marginTop">28dp</item>
+        <item name="android:padding">12dp</item>
+    </style>
+
+    <style name="DetailViewFAB">
+        <item name="android:layout_marginTop">12dp</item>
+        <item name="android:layout_marginEnd">32dp</item>
+    </style>
+
+    <style name="DetailViewWalkTime">
+        <item name="android:maxLines">1</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+    <style name="PoiDetailsNameTextView">
+        <item name="android:textSize">28sp</item>
+        <item name="android:textColor">@android:color/black</item>
+    </style>
+
+    <style name="EventsDetailViewSubHeader">
+        <item name="android:color">@android:color/black</item>
+        <item name="android:textSize">10sp</item>
+    </style>
+
+    <style name="EventsDetailViewCodeFont" parent="Base.TextAppearance.AppCompat.Large">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:color">@android:color/black</item>
+        <item name="android:textSize">13sp</item>
+    </style>
+
+    <style name="EventsDetailViewCodeFontSingleLine" parent="EventsDetailViewCodeFont">
+        <item name="android:maxLines">1</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:textColor">@color/colorPrimary</item>
+    </style>
+
+    <style name="EventsDetailViewCodeFontLocationSingleLine" parent="EventsDetailViewCodeFontSingleLine">
+        <item name="android:color">@color/colorPrimary</item>
+    </style>
+
+    <style name="PoiDetailsDescriptionTextView">
+        <item name="android:textSize">14sp</item>
+        <item name="android:layout_marginStart">16dp</item>
+        <item name="android:layout_marginBottom">12dp</item>
+    </style>
+
+    <style name="PoiDetailsWaitTimesUpdatedTextView">
+        <item name="android:alpha">.5</item>
+        <item name="android:textSize">10sp</item>
+        <item name="android:layout_marginStart">16dp</item>
+        <item name="android:layout_marginBottom">12dp</item>
+    </style>
+
 </resources>

@@ -1,5 +1,6 @@
 package com.example.player.view.recycler;
 
+import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,15 +19,18 @@ public class PostAdapter extends RecyclerView.Adapter<PostViewHolder> {
 
     private static final String TAG = "PostAdapterTAG_";
     private List<PostViewModel> items = new ArrayList<>();
+    private Context context;
 
-    public PostAdapter() {
+    public PostAdapter(Context context) {
+        this.context = context;
         setHasStableIds(true);
     }
 
     @Override
     public PostViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.view_item_post, parent, false);
-        return new PostViewHolder(view);
+        View view = LayoutInflater.from(parent.getContext()).
+                inflate(R.layout.view_item_post, parent, false);
+        return new PostViewHolder(view, context);
     }
 
     @Override
