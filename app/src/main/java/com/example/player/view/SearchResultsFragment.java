@@ -95,6 +95,7 @@ public class SearchResultsFragment extends Fragment implements LifecycleOwner {
                 throw new ClassCastException("Activity must implement MapsModuleListener.");
             }
         }
+        Log.d(TAG, "_yyy onAttach: ");
     }
 
     @Override
@@ -102,24 +103,34 @@ public class SearchResultsFragment extends Fragment implements LifecycleOwner {
         super.onCreate(savedInstanceState);
         mLifecycleRegistry = new LifecycleRegistry(this);
         mLifecycleRegistry.markState(Lifecycle.State.CREATED);
+        Log.d(TAG, "_yyy onCreate: ");
     }
 
     @Override
     public void onStart() {
         super.onStart();
         mLifecycleRegistry.markState(Lifecycle.State.STARTED);
+        Log.d(TAG, "_yyy onStart: ");
     }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(FeedViewModel.class);
-        Log.d(TAG, "onActivityCreated: ");
+        Log.d(TAG, "_yyy onActivityCreated: ");
+
+        showFab();
+        manageSearchList();
+        initBindings();
+
+        // Initial page load
+        search(currentSearch);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        Log.d(TAG, "_yyy onCreateView: ");
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_search_results, container, false);
 
@@ -135,6 +146,7 @@ public class SearchResultsFragment extends Fragment implements LifecycleOwner {
     public void onDestroy() {
         super.onDestroy();
 
+        Log.d(TAG, "_yyy onDestroy: ");
         subscriptions.unsubscribe();
     }
 
@@ -142,12 +154,13 @@ public class SearchResultsFragment extends Fragment implements LifecycleOwner {
     public void onResume() {
         super.onResume();
 
-        showFab();
+        Log.d(TAG, "_yyy onResume: ");
+/*        showFab();
         manageSearchList();
         initBindings();
 
         // Initial page load
-        search(currentSearch);
+        search(currentSearch);*/
     }
 
     @UiThread
@@ -172,6 +185,7 @@ public class SearchResultsFragment extends Fragment implements LifecycleOwner {
         }
     };
 
+    int cont;
     private void manageSearchList() {
         postListLayoutManager = new LinearLayoutManager(getContext());
         postList.setLayoutManager(postListLayoutManager);
@@ -181,6 +195,7 @@ public class SearchResultsFragment extends Fragment implements LifecycleOwner {
             @Override
             public void onClick(View view, final int position) {
                 //Values are passing to activity & to fragment as well
+                Log.d(TAG, "_yyy: " + cont);
                 String uuid = viewModel.getSelectedTitle(position);
                 Intent intent = new Intent(getContext(), PlayerActivity.class);
                 intent.putExtra("uuid", uuid);

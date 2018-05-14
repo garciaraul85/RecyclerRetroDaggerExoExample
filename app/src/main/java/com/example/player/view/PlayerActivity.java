@@ -18,6 +18,7 @@ import com.bumptech.glide.Glide;
 import com.example.player.DemoApplication;
 import com.example.player.R;
 import com.example.player.model.MapsModuleListener;
+import com.example.player.viewmodel.FeedViewModel;
 import com.example.player.viewmodel.PostViewModel;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
@@ -36,7 +37,9 @@ public class PlayerActivity extends AppCompatActivity implements MapsModuleListe
     private TextView nameOfTextView;
     private TextView linkTextView;
     private ImageView categoryIconImageView;
-    private FloatingActionButton favoritesFloatingActionButton;
+    private ImageView backImageView;
+    private FloatingActionButton favFlActionButton;
+    private PostViewModel poi;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,7 +51,26 @@ public class PlayerActivity extends AppCompatActivity implements MapsModuleListe
         nameOfTextView = (TextView) findViewById(R.id.name_text_view);
         linkTextView = (TextView) findViewById(R.id.link_text_view);
         categoryIconImageView = (ImageView) findViewById(R.id.category_icon_image_view);
-        favoritesFloatingActionButton = (FloatingActionButton) findViewById(R.id.poi_fab);
+        favFlActionButton = (FloatingActionButton) findViewById(R.id.poi_fab);
+        backImageView = (ImageView) findViewById(R.id.poi_details_up_nav_image_view);
+
+        backImageView.setOnClickListener(v -> onBackPressed());
+
+        favFlActionButton.setOnClickListener(v -> {
+            boolean switchFavorite = poi.isFavorite();
+            poi.setFavorite(!switchFavorite);
+            new FeedViewModel.setFavoriteItemTask().execute(poi);
+
+            if (poi.isFavorite()) {
+                favFlActionButton.setColorFilter(ContextCompat.
+                                getColor(getApplicationContext(), R.color.colorYellow),
+                        android.graphics.PorterDuff.Mode.MULTIPLY);
+            } else {
+                favFlActionButton.setColorFilter(ContextCompat.
+                                getColor(getApplicationContext(), R.color.colorBlack),
+                        android.graphics.PorterDuff.Mode.MULTIPLY);
+            }
+        });
     }
 
     @Override
@@ -86,8 +108,15 @@ public class PlayerActivity extends AppCompatActivity implements MapsModuleListe
     }
 
     @Override
+    public void onBackPressed() {
+        finishAndRemoveTask();
+    }
+
+    @Override
     public void onPoiSelected(PostViewModel poi) {
         Log.d(TAG, "onPoiSelected: " + poi);
+
+        this.poi = poi;
 
         if (poi.getCategoryOfPlace() != null) {
             categoryTextView.setText(poi.getCategoryOfPlace());
@@ -108,24 +137,22 @@ public class PlayerActivity extends AppCompatActivity implements MapsModuleListe
         }
 
         if (poi.isFavorite()) {
-            favoritesFloatingActionButton.setColorFilter(ContextCompat.getColor(getApplicationContext(), R.color.colorYellow), android.graphics.PorterDuff.Mode.MULTIPLY);
+            favFlActionButton.setColorFilter(ContextCompat.
+                    getColor(getApplicationContext(), R.color.colorYellow),
+                    android.graphics.PorterDuff.Mode.MULTIPLY);
         } else {
-            favoritesFloatingActionButton.setColorFilter(ContextCompat.getColor(getApplicationContext(), R.color.colorBlack), android.graphics.PorterDuff.Mode.MULTIPLY);
+            favFlActionButton.setColorFilter(ContextCompat.
+                    getColor(getApplicationContext(), R.color.colorBlack),
+                    android.graphics.PorterDuff.Mode.MULTIPLY);
         }
 
         if (poi.getIconUrl() != null && poi.getIconExtension() != null) {
-            Log.d(TAG, "icon: " + poi.getIconUrl() + "32" + poi.getIconExtension());
-            Picasso.with(getApplicationContext()).load(poi.getIconUrl() + "32" + poi.getIconExtension()).into(categoryIconImageView, new Callback() {
-                @Override
-                public void onSuccess() {
-                    Log.d("TAG", "onSuccess");
-                }
-
-                @Override
-                public void onError() {
-                    Log.d(TAG, "onError: ");
-                }
-            });
+            String imagePath = poi.getIconUrl() + "bg_88" + poi.getIconExtension();
+            Glide.with(getApplicationContext())
+                    .load(imagePath)
+                    .placeholder(R.drawable.exo_controls_next)
+                    .error(R.drawable.exo_controls_pause)
+                    .into(categoryIconImageView);
         }
     }
 }

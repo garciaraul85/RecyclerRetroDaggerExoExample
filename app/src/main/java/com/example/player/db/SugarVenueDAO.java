@@ -37,7 +37,18 @@ public class SugarVenueDAO {
     public static void insertLastSearch(List<PostViewModel> postViewModelList) {
         if (postViewModelList != null && !postViewModelList.isEmpty()) {
             for (PostViewModel postViewModel : postViewModelList) {
-                PostViewModel.save(postViewModel);
+                PostViewModel existingPoi = getPoiByUid(postViewModel.getUid());
+                if (existingPoi == null) { // Poi doesnt exist, save it
+                    PostViewModel.save(postViewModel);
+                } else { // else update it
+                    existingPoi.setHomePage(postViewModel.getHomePage());
+                    existingPoi.setCategoryOfPlace(postViewModel.getCategoryOfPlace());
+                    existingPoi.setIconExtension(postViewModel.getIconExtension());
+                    existingPoi.setIconUrl(postViewModel.getIconUrl());
+                    existingPoi.setLatLn(postViewModel.getLatLn());
+                    existingPoi.setNameOfPlace(postViewModel.getNameOfPlace());
+                    existingPoi.save();
+                }
             }
         }
     }

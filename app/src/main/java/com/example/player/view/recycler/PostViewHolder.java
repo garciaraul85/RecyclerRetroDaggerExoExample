@@ -25,6 +25,7 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
     private TextView categoryTextView;
     private TextView distanceTextView;
     private ImageView iconPathImageView;
+    private ImageView favoriteImageView;
     private final LatLng mDefaultLocation = new LatLng(47.608013, -122.335167);
     private Context context;
 
@@ -37,9 +38,11 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
         this.categoryTextView = view.findViewById(R.id.categoryOfPlace);
         this.distanceTextView = view.findViewById(R.id.distance);
         this.iconPathImageView = view.findViewById(R.id.iconUrl);
+        this.favoriteImageView = view.findViewById(R.id.favoriteImageView);
     }
 
     public void bind(PostViewModel viewModel) {
+        Log.d("TAG", "IS FAV: " + viewModel.isFavorite() + ", = " + viewModel.getNameOfPlace());
         nameTextView.setText(viewModel.getNameOfPlace());
         categoryTextView.setText(viewModel.getCategoryOfPlace());
         if (viewModel.getLatLng() != null) {
@@ -48,21 +51,22 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
         }
 
         //UrlValidator urlValidator = new UrlValidator();
-        String imagePath = viewModel.getIconUrl() + "32" + viewModel.getIconExtension();
+        String imagePath = viewModel.getIconUrl() + "bg_88" + viewModel.getIconExtension();
         boolean hasThumbnail = viewModel.getIconUrl() != null;// && urlValidator.isValid(imagePath);
 
         // Show/hide the thumbnail if there is/isn't one
         iconPathImageView.setVisibility(hasThumbnail ? View.VISIBLE : View.GONE);
 
+        // Shows or hides the favorite icon
+        favoriteImageView.setVisibility(viewModel.isFavorite() ? View.VISIBLE : View.GONE);
+
         // Load the thumbnail if there is one
-        Log.d("Picasso", "bind: " + imagePath);
         if (hasThumbnail) {
             Glide.with(view.getContext())
                     .load(imagePath)
                     .placeholder(R.drawable.exo_controls_next)
                     .error(R.drawable.exo_controls_pause)
                     .into(iconPathImageView);
-            //            Picasso.with(view.getContext()).load("https://ss3.4sqi.net/img/categories_v2/food/mexican_32.png").into(iconPathImageView);
         }
     }
 

@@ -116,9 +116,9 @@ public class FeedViewModel extends ViewModel {
         List<PostViewModel> fullList = new ArrayList<>(postSubject.getValue());
         fullList.addAll(list);
 
-        currentList.addAll(list);
-        postSubject.onNext(list);
-        showResultsMapFab.postValue(!list.isEmpty());
+        //currentList.addAll(list);
+//        postSubject.onNext(list);
+//        showResultsMapFab.postValue(!list.isEmpty());
 
         // Cache last search to show it in other views.
         new ClearLastSearchTask().execute(list);
@@ -186,6 +186,8 @@ public class FeedViewModel extends ViewModel {
         protected void onPostExecute(List<PostViewModel> postViewModelList) {
             super.onPostExecute(postViewModelList);
             currentList.addAll(postViewModelList);
+            postSubject.onNext(postViewModelList);
+            showResultsMapFab.postValue(!postViewModelList.isEmpty());
         }
     }
 
@@ -201,5 +203,16 @@ public class FeedViewModel extends ViewModel {
             super.onPostExecute(postViewModel);
             selectedItem.setValue(postViewModel);
         }
+    }
+
+    public static class setFavoriteItemTask extends AsyncTask<PostViewModel, Void, Void> {
+
+        @Override
+        protected Void doInBackground(PostViewModel... postViewModels) {
+            SugarVenueDAO.setFavorite(postViewModels[0].isFavorite(), postViewModels[0].getId().intValue());
+            Log.d(TAG, "doInBackground: " + SugarVenueDAO.getPoiByUid(postViewModels[0].getUid()));
+            return null;
+        }
+
     }
 }
