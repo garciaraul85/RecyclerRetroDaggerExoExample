@@ -1,8 +1,12 @@
 package com.example.player.viewmodel;
 
-import com.example.player.model.Result;
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.Index;
+import android.arch.persistence.room.PrimaryKey;
+
 import com.example.player.model.Venue;
 import com.google.android.gms.maps.model.LatLng;
+import com.orm.SugarRecord;
 
 import lombok.Data;
 import lombok.NonNull;
@@ -10,10 +14,12 @@ import lombok.NonNull;
 /**
  * Created by linke_000 on 17/08/2017.
  */
+@Entity(indices = {@Index(value = {"id"},
+        unique = true)})
 @Data
-public class PostViewModel {
+public class PostViewModel extends SugarRecord {
 
-    private String id;
+    private String uid;
     private String nameOfPlace;
     private String categoryOfPlace;
     private String iconUrl;
@@ -22,12 +28,17 @@ public class PostViewModel {
     private LatLng latLng;
     private double distanceToCenter;
     private boolean favorite;
+    private boolean selected;
+
+    public PostViewModel() {
+
+    }
 
     public PostViewModel(@NonNull Venue venue) {
         this.nameOfPlace = venue.getName();
 
         if (venue.getId() != null) {
-            this.id = venue.getId();
+            this.uid = venue.getId();
         }
 
         if (venue.getCategories() != null && !venue.getCategories().isEmpty()) {
@@ -105,12 +116,12 @@ public class PostViewModel {
         this.favorite = favorite;
     }
 
-    public String getId() {
-        return id;
+    public String getUid() {
+        return uid;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setUid(String uid) {
+        this.uid = uid;
     }
 
     public double getDistanceToCenter() {
@@ -120,4 +131,13 @@ public class PostViewModel {
     public void setDistanceToCenter(double distanceToCenter) {
         this.distanceToCenter = distanceToCenter;
     }
+
+    public boolean isSelected() {
+        return selected;
+    }
+
+    public void setSelected(boolean selected) {
+        this.selected = selected;
+    }
+
 }

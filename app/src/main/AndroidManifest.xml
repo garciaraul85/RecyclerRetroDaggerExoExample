@@ -15,12 +15,12 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity android:name=".view.FeedActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
 
             </intent-filter>
         </activity>
@@ -28,6 +28,12 @@
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyDGriSVP2ZHpTLS-oqZ5boj-vydqIl4Glg" />
+
+        <meta-data android:name="DATABASE" android:value="points.db" />
+        <meta-data android:name="VERSION" android:value="2" />
+        <meta-data android:name="QUERY_LOG" android:value="true" />
+        <meta-data android:name="DOMAIN_PACKAGE_NAME" android:value="com.example.player.viewmodel" />
+
     </application>
 
 </manifest>

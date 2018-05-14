@@ -1,11 +1,13 @@
 package com.example.player.viewmodel;
 
-import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
+import android.os.AsyncTask;
 import android.util.Log;
 
 import com.example.player.client.FourSquaresClient;
+import com.example.player.db.AppDatabase;
+import com.example.player.db.SugarVenueDAO;
 import com.example.player.model.Response;
 import com.example.player.model.Result;
 import com.example.player.model.Venue;
@@ -26,6 +28,7 @@ public class FeedViewModel extends ViewModel {
     private static final String TAG = "ViewModelTAG_";
     private FourSquaresClient fourSquareClient;
 
+    private AppDatabase appDataBase;
     private String clientId;
     private String clientSecret;
     private String version;
@@ -93,11 +96,11 @@ public class FeedViewModel extends ViewModel {
         return isLoadingSubject.asObservable();
     }
 
-    public String getSelectedTitle(int position) {
+    public PostViewModel getSelectedTitle(int position) {
         if (currentList != null && !currentList.isEmpty() && currentList.size() > position) {
-            return currentList.get(position).getCategoryOfPlace();
+            return currentList.get(position);
         } else {
-            return "Empty: " + position + "_" + currentList.size();
+            return null;
         }
     }
 
@@ -107,8 +110,11 @@ public class FeedViewModel extends ViewModel {
         List<PostViewModel> fullList = new ArrayList<>(postSubject.getValue());
         fullList.addAll(list);
 
-        currentList.addAll(list);
 
+        // Cache last search to show it in other views.
+        new ClearLastSearchTask().execute(list);
+
+        currentList.addAll(list);
         postSubject.onNext(list);
         showResultsMapFab.postValue(!list.isEmpty());
     }
@@ -131,4 +137,41 @@ public class FeedViewModel extends ViewModel {
         return currentList;
     }
 
+    public AppDatabase getAppDataBase() {
+        return appDataBase;
+    }
+
+    public void setAppDataBase(AppDatabase appDataBase) {
+        this.appDataBase = appDataBase;
+    }
+
+    private static class ClearLastSearchTask extends AsyncTask<List<PostViewModel>, Void, List<PostViewModel>> {
+
+        @Override
+        protected List<PostViewModel> doInBackground(List<PostViewModel>... lists) {
+            SugarVenueDAO.clearLastSearch();
+            int size = SugarVenueDAO.getPois().size();
+            Log.d(TAG, "doInBackground: " + size);
+            return lists[0];
+        }
+
+        @Override
+        protected void onPostExecute(List<PostViewModel> postViewModelList) {
+            super.onPostExecute(postViewModelList);
+            new CacheLastSearchTask().execute(postViewModelList);
+        }
+    }
+
+    private static class CacheLastSearchTask extends AsyncTask<List<PostViewModel>, Void, String> {
+
+        @Override
+        protected String doInBackground(List<PostViewModel>... lists) {
+            int size = SugarVenueDAO.getPois().size();
+            Log.d(TAG, "doInBackground1: " + size);
+            SugarVenueDAO.insertLastSearch(lists[0]);
+            int size2 = SugarVenueDAO.getPois().size();
+            Log.d(TAG, "doInBackground2: " + size2);
+            return null;
+        }
+    }
 }

@@ -2,12 +2,14 @@ package com.example.player;
 
 import android.app.Application;
 
+import com.example.player.db.AppDatabase;
 import com.example.player.dependencyinjection.component.ApplicationComponent;
 import com.example.player.dependencyinjection.component.DaggerApplicationComponent;
 import com.example.player.dependencyinjection.component.DaggerUserComponent;
 import com.example.player.dependencyinjection.component.DemoComponent;
 import com.example.player.dependencyinjection.module.ApplicationModule;
 import com.example.player.dependencyinjection.module.DemoModule;
+import com.orm.SugarContext;
 
 
 /**
@@ -16,12 +18,21 @@ import com.example.player.dependencyinjection.module.DemoModule;
 public class DemoApplication extends Application {
     private DemoComponent demoComponent;
     private ApplicationComponent applicationComponent;
+    //protected AppDatabase appDb;
 
     @Override
     public void onCreate() {
         super.onCreate();
         demoComponent = createDemoComponent();
         applicationComponent = createAppComponent();
+        //appDb = AppDatabase.getAppDatabase(getApplicationContext());
+        SugarContext.init(this);
+    }
+
+    @Override
+    public void onTerminate() {
+        super.onTerminate();
+        SugarContext.terminate();
     }
 
     public ApplicationComponent createAppComponent() {
@@ -45,5 +56,9 @@ public class DemoApplication extends Application {
     public DemoComponent demoComponent() {
         return demoComponent;
     }
+
+    /*public AppDatabase getAppDB() {
+        return appDb;
+    }*/
 
 }

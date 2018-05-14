@@ -161,7 +161,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Lifecyc
         if (this.postViewModelList != null && !this.postViewModelList.isEmpty()) {
             for (PostViewModel viewModel : this.postViewModelList) {
                 Log.d(TAG, "_xxx  Place: " + viewModel.getNameOfPlace());
-                if (viewModel.getLatLng() != null && viewModel.getId() != null) {
+                if (viewModel.getLatLng() != null && viewModel.getUid() != null) {
                     mMarkerPoints.add(viewModel.getLatLng());
                     googleMap.addMarker(new MarkerOptions().position(viewModel.getLatLng())
                             .title(viewModel.getNameOfPlace()));

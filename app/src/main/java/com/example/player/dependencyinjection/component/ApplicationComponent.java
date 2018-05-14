@@ -1,5 +1,6 @@
 package com.example.player.dependencyinjection.component;
 
+import com.example.player.DemoApplication;
 import com.example.player.dependencyinjection.module.ApplicationModule;
 import com.example.player.dependencyinjection.module.ClientModule;
 import com.example.player.dependencyinjection.module.ViewModelModule;
@@ -23,5 +24,6 @@ public interface ApplicationComponent {
     void inject(PlayerActivity activity);
     void inject(SearchResultsFragment fragment);
     void inject(MapFragment fragment);
+    void inject(DemoApplication app);
     //void inject(FeedViewModel viewModel);
 }
