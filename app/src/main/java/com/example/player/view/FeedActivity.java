@@ -77,4 +77,9 @@ public class FeedActivity extends AppCompatActivity implements MapsModuleListene
     public void onPoiSearchTermEntered(String searchTerm) {
 
     }
+
+    @Override
+    public void onPoiSelected(PostViewModel poi) {
+
+    }
 }

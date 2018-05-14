@@ -11,4 +11,6 @@ public interface MapsModuleListener {
 
     void onPoiSearchTermEntered(String searchTerm);
 
+    void onPoiSelected(PostViewModel poi);
+
 }

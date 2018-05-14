@@ -28,7 +28,6 @@ public class FeedViewModel extends ViewModel {
     private static final String TAG = "ViewModelTAG_";
     private FourSquaresClient fourSquareClient;
 
-    private AppDatabase appDataBase;
     private String clientId;
     private String clientSecret;
     private String version;
@@ -40,6 +39,8 @@ public class FeedViewModel extends ViewModel {
     private List<PostViewModel> currentList;
 
     private MutableLiveData<Boolean> showResultsMapFab = new MutableLiveData<>();
+
+    private MutableLiveData<PostViewModel> selectedItem = new MutableLiveData<>();
 
     @Inject
     public FeedViewModel(FourSquaresClient fourSquareClient) {
@@ -104,19 +105,23 @@ public class FeedViewModel extends ViewModel {
         }
     }
 
+    public MutableLiveData<PostViewModel> getSelectedPoi(String uid) {
+        new getCurrentItemTask().execute(uid);
+        return selectedItem;
+    }
+
     private void call(List<PostViewModel> list) {
         Log.d(TAG, "_xxx call: " + list.toString());
 
         List<PostViewModel> fullList = new ArrayList<>(postSubject.getValue());
         fullList.addAll(list);
 
+        currentList.addAll(list);
+        postSubject.onNext(list);
+        showResultsMapFab.postValue(!list.isEmpty());
 
         // Cache last search to show it in other views.
         new ClearLastSearchTask().execute(list);
-
-        //currentList.addAll(list);
-        postSubject.onNext(list);
-        showResultsMapFab.postValue(!list.isEmpty());
     }
 
     private void restoreList(List<PostViewModel> list) {
@@ -132,14 +137,6 @@ public class FeedViewModel extends ViewModel {
 
     public List<PostViewModel> getCurrentList() {
         return currentList;
-    }
-
-    public AppDatabase getAppDataBase() {
-        return appDataBase;
-    }
-
-    public void setAppDataBase(AppDatabase appDataBase) {
-        this.appDataBase = appDataBase;
     }
 
     private class ClearLastSearchTask extends AsyncTask<List<PostViewModel>, Void, List<PostViewModel>> {
@@ -178,7 +175,7 @@ public class FeedViewModel extends ViewModel {
         }
     }
 
-    private  class getLastSearchTask extends AsyncTask<Void, Void, List<PostViewModel>> {
+    private class getLastSearchTask extends AsyncTask<Void, Void, List<PostViewModel>> {
 
         @Override
         protected List<PostViewModel> doInBackground(Void... voids) {
@@ -189,6 +186,20 @@ public class FeedViewModel extends ViewModel {
         protected void onPostExecute(List<PostViewModel> postViewModelList) {
             super.onPostExecute(postViewModelList);
             currentList.addAll(postViewModelList);
+        }
+    }
+
+    private class getCurrentItemTask extends AsyncTask<String, Void, PostViewModel> {
+
+        @Override
+        protected PostViewModel doInBackground(String... uid) {
+            return SugarVenueDAO.getPoiByUid(uid[0]);
+        }
+
+        @Override
+        protected void onPostExecute(PostViewModel postViewModel) {
+            super.onPostExecute(postViewModel);
+            selectedItem.setValue(postViewModel);
         }
     }
 }

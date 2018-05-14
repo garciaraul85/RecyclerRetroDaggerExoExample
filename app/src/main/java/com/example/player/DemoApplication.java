@@ -18,14 +18,12 @@ import com.orm.SugarContext;
 public class DemoApplication extends Application {
     private DemoComponent demoComponent;
     private ApplicationComponent applicationComponent;
-    //protected AppDatabase appDb;
 
     @Override
     public void onCreate() {
         super.onCreate();
         demoComponent = createDemoComponent();
         applicationComponent = createAppComponent();
-        //appDb = AppDatabase.getAppDatabase(getApplicationContext());
         SugarContext.init(this);
     }
 
@@ -56,9 +54,5 @@ public class DemoApplication extends Application {
     public DemoComponent demoComponent() {
         return demoComponent;
     }
-
-    /*public AppDatabase getAppDB() {
-        return appDb;
-    }*/
 
 }

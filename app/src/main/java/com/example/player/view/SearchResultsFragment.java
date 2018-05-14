@@ -326,7 +326,7 @@ public class SearchResultsFragment extends Fragment implements LifecycleOwner {
     }
 
     private void showFab() {
-        final Observer<Boolean> elapsedTimeObserver = showFab -> {
+        final Observer<Boolean> showFabObserver = showFab -> {
             if (showMapButton != null) {
                 if (showFab != null && showFab) {
                     showMapButton.setVisibility(View.VISIBLE);
@@ -336,7 +336,7 @@ public class SearchResultsFragment extends Fragment implements LifecycleOwner {
             }
         };
 
-        viewModel.getShowResultsMapFab().observe(this, elapsedTimeObserver);
+        viewModel.getShowResultsMapFab().observe(this, showFabObserver);
 
         // Show the list in a map format
         showMapButton.setOnClickListener(v -> {

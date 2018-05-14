@@ -101,4 +101,6 @@
     <string name="category">category</string>
     <string name="Category">Category</string>
     <string name="Name">Name of place</string>
+    <string name="def_location">Downtown Seattle</string>
+    <string name="no_page">No home page available.</string>
 </resources>

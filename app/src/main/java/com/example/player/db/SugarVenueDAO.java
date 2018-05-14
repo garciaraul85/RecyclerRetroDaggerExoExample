@@ -23,6 +23,16 @@ public class SugarVenueDAO {
     }
 
     @WorkerThread
+    public static PostViewModel getPoiByUid(String uuId) {
+        List<PostViewModel> postViewModels = PostViewModel.find(PostViewModel.class, "uid=?", uuId);
+        if (postViewModels != null && !postViewModels.isEmpty()) {
+            return postViewModels.get(0);
+        } else {
+            return null;
+        }
+    }
+
+    @WorkerThread
     @Insert(onConflict = REPLACE)
     public static void insertLastSearch(List<PostViewModel> postViewModelList) {
         if (postViewModelList != null && !postViewModelList.isEmpty()) {
