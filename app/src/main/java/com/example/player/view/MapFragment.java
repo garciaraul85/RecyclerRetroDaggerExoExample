@@ -7,6 +7,7 @@ import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -210,6 +211,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Lifecyc
                         for (PostViewModel viewModel : postViewModelList) {
                             if (viewModel.getNameOfPlace() != null && marker.getTitle() != null && viewModel.getNameOfPlace().equals(marker.getTitle())) {
                                 Log.d(TAG, "onInfoWindowClick: " + viewModel.getNameOfPlace());
+                                String uuid = viewModel.getUid();
+                                Intent intent = new Intent(getContext(), PlayerActivity.class);
+                                intent.putExtra("uuid", uuid);
+                                startActivity(intent);
                                 break;
                             }
                         }
