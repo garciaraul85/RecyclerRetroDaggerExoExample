@@ -20,8 +20,6 @@ import com.example.player.R;
 import com.example.player.model.MapsModuleListener;
 import com.example.player.viewmodel.FeedViewModel;
 import com.example.player.viewmodel.PostViewModel;
-import com.squareup.picasso.Callback;
-import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -150,8 +148,8 @@ public class PlayerActivity extends AppCompatActivity implements MapsModuleListe
             String imagePath = poi.getIconUrl() + "bg_88" + poi.getIconExtension();
             Glide.with(getApplicationContext())
                     .load(imagePath)
-                    .placeholder(R.drawable.exo_controls_next)
-                    .error(R.drawable.exo_controls_pause)
+                    //.placeholder(R.drawable.exo_controls_next)
+                    //.error(R.drawable.exo_controls_pause)
                     .into(categoryIconImageView);
         }
     }

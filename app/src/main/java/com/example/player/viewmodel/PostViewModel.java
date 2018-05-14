@@ -9,6 +9,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.orm.SugarRecord;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 
 /**
@@ -17,6 +18,7 @@ import lombok.NonNull;
 @Entity(indices = {@Index(value = {"id"},
         unique = true)})
 @Data
+@EqualsAndHashCode(callSuper=false)
 public class PostViewModel extends SugarRecord {
 
     private String uid;

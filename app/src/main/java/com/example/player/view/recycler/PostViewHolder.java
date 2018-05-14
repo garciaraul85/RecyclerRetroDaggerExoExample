@@ -12,7 +12,6 @@ import com.example.player.R;
 import com.example.player.util.MapsUtil;
 import com.example.player.viewmodel.PostViewModel;
 import com.google.android.gms.maps.model.LatLng;
-import com.squareup.picasso.Picasso;
 
 import org.apache.commons.validator.routines.UrlValidator;
 
@@ -69,8 +68,8 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
         if (hasThumbnail) {
             Glide.with(view.getContext())
                     .load(imagePath)
-                    .placeholder(R.drawable.exo_controls_next)
-                    .error(R.drawable.exo_controls_pause)
+                    //.placeholder(R.drawable.exo_controls_next)
+                    //.error(R.drawable.exo_controls_pause)
                     .into(iconPathImageView);
         }
     }

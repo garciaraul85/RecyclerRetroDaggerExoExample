@@ -163,18 +163,19 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Lifecyc
 
         googleMapMutableLiveData.postValue(googleMap);
 
-        if (uuId != null) {
-            // Print selected poi marker
-            printSelectedPoi(googleMap);
-        } else {
-            // Print all pois markers
-            if (postViewModelList != null && postViewModelList.isEmpty()) {
-                printAllPoisMarkers(googleMap, postViewModelList);
+        if (isAdded()) {
+            if (uuId != null) {
+                // Print selected poi marker
+                printSelectedPoi(googleMap);
             } else {
-                printAllPoisMarkersFromCache(mGoogleMap);
+                // Print all pois markers
+                if (postViewModelList != null && postViewModelList.isEmpty()) {
+                    printAllPoisMarkers(googleMap, postViewModelList);
+                } else {
+                    printAllPoisMarkersFromCache(mGoogleMap);
+                }
             }
         }
-
     }
 
     private void printSelectedPoi(GoogleMap googleMap) {
@@ -188,11 +189,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Lifecyc
                     LatLng poiLocation = new LatLng(Double.valueOf(latLn[0]), Double.valueOf(latLn[1]));
 
                     jumpToPoiLocation(poiLocation);
-                    googleMap.addMarker(new MarkerOptions().position(
-                            poiLocation).title(postViewModel.getNameOfPlace()));
 
-                    googleMap.addMarker(new MarkerOptions().position(
-                            mDefaultLocation).title(getString(R.string.def_location)));
+                    if (isAdded()) {
+                        googleMap.addMarker(new MarkerOptions().position(
+                                poiLocation).title(postViewModel.getNameOfPlace()));
+
+                        googleMap.addMarker(new MarkerOptions().position(
+                                mDefaultLocation).title(getString(R.string.def_location)));
+                    }
                 }
             }
         };
