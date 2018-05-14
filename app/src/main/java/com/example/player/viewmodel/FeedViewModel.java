@@ -96,9 +96,9 @@ public class FeedViewModel extends ViewModel {
         return isLoadingSubject.asObservable();
     }
 
-    public PostViewModel getSelectedTitle(int position) {
+    public String getSelectedTitle(int position) {
         if (currentList != null && !currentList.isEmpty() && currentList.size() > position) {
-            return currentList.get(position);
+            return currentList.get(position).getUid();
         } else {
             return null;
         }
@@ -114,16 +114,13 @@ public class FeedViewModel extends ViewModel {
         // Cache last search to show it in other views.
         new ClearLastSearchTask().execute(list);
 
-        currentList.addAll(list);
+        //currentList.addAll(list);
         postSubject.onNext(list);
         showResultsMapFab.postValue(!list.isEmpty());
     }
 
     private void restoreList(List<PostViewModel> list) {
         Log.d(TAG, "_xxx restore: " + list.toString());
-
-        List<PostViewModel> fullList = new ArrayList<>(postSubject.getValue());
-        fullList.addAll(list);
 
         postSubject.onNext(list);
         showResultsMapFab.postValue(!list.isEmpty());
@@ -145,7 +142,7 @@ public class FeedViewModel extends ViewModel {
         this.appDataBase = appDataBase;
     }
 
-    private static class ClearLastSearchTask extends AsyncTask<List<PostViewModel>, Void, List<PostViewModel>> {
+    private class ClearLastSearchTask extends AsyncTask<List<PostViewModel>, Void, List<PostViewModel>> {
 
         @Override
         protected List<PostViewModel> doInBackground(List<PostViewModel>... lists) {
@@ -162,7 +159,7 @@ public class FeedViewModel extends ViewModel {
         }
     }
 
-    private static class CacheLastSearchTask extends AsyncTask<List<PostViewModel>, Void, String> {
+    private class CacheLastSearchTask extends AsyncTask<List<PostViewModel>, Void, String> {
 
         @Override
         protected String doInBackground(List<PostViewModel>... lists) {
@@ -172,6 +169,26 @@ public class FeedViewModel extends ViewModel {
             int size2 = SugarVenueDAO.getPois().size();
             Log.d(TAG, "doInBackground2: " + size2);
             return null;
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+            new getLastSearchTask().execute();
+        }
+    }
+
+    private  class getLastSearchTask extends AsyncTask<Void, Void, List<PostViewModel>> {
+
+        @Override
+        protected List<PostViewModel> doInBackground(Void... voids) {
+            return SugarVenueDAO.getPois();
+        }
+
+        @Override
+        protected void onPostExecute(List<PostViewModel> postViewModelList) {
+            super.onPostExecute(postViewModelList);
+            currentList.addAll(postViewModelList);
         }
     }
 }

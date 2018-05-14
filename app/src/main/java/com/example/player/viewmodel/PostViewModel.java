@@ -25,6 +25,7 @@ public class PostViewModel extends SugarRecord {
     private String iconUrl;
     private String iconExtension = ".png";
     private String homePage;
+    private String latLn;
     private LatLng latLng;
     private double distanceToCenter;
     private boolean favorite;
@@ -56,6 +57,7 @@ public class PostViewModel extends SugarRecord {
 
         if (venue.getLocation() != null) {
             this.latLng = new LatLng(venue.getLocation().getLat(), venue.getLocation().getLng());
+            this.latLn = venue.getLocation().getLat() + "," +  venue.getLocation().getLng();
         }
 
     }
@@ -140,4 +142,11 @@ public class PostViewModel extends SugarRecord {
         this.selected = selected;
     }
 
+    public String getLatLn() {
+        return latLn;
+    }
+
+    public void setLatLn(String latLn) {
+        this.latLn = latLn;
+    }
 }

@@ -181,7 +181,10 @@ public class SearchResultsFragment extends Fragment implements LifecycleOwner {
             @Override
             public void onClick(View view, final int position) {
                 //Values are passing to activity & to fragment as well
-                startActivity(new Intent(getContext(), PlayerActivity.class));
+                String uuid = viewModel.getSelectedTitle(position);
+                Intent intent = new Intent(getContext(), PlayerActivity.class);
+                intent.putExtra("uuid", uuid);
+                startActivity(intent);
             }
 
             @Override
